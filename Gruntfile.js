@@ -15,11 +15,22 @@ module.exports = function (grunt) {
       scripts: {
         files: {
           'main.js': [
-            'bower_components/d3/d3.min.js',
-            'assets/**/*.js'
+            'bower_components/d3/d3.min.js', 
+            'tmp/main.js'
           ]
         }
       }
+    },
+    babel: {
+        options: {
+            sourceMap: true,
+            presets: ['es2015']
+        },
+        dist: {
+            files: {
+                'tmp/main.js': ['assets/**/*.js']
+            }
+        }
     },
     watch: {
       sass: {
@@ -28,7 +39,7 @@ module.exports = function (grunt) {
       },
       scripts: {
         files: ['assets/**/*.js'],
-        tasks: ['uglify']
+        tasks: ['js']
       }
     }
   });
@@ -36,7 +47,9 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-sass');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-babel');
 
-  grunt.registerTask('default', ['sass', 'uglify', 'watch']);
+  grunt.registerTask('js', ['babel', 'uglify']);
+  grunt.registerTask('default', ['sass', 'js', 'watch']);
 
 };
