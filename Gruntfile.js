@@ -16,7 +16,7 @@ module.exports = function (grunt) {
         files: {
           'main.js': [
             'bower_components/d3/d3.min.js', 
-            'tmp/main.js'
+            'tmp/**/*.js'
           ]
         }
       }
@@ -27,9 +27,14 @@ module.exports = function (grunt) {
             presets: ['es2015']
         },
         dist: {
-            files: {
-                'tmp/main.js': ['assets/**/*.js']
-            }
+            files: [
+              {
+                expand: true,
+                src: ['assets/**/*.js'],
+                dest: 'tmp/',
+                ext: '.js'
+              }
+            ]
         }
     },
     watch: {
