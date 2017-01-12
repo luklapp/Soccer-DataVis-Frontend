@@ -1,34 +1,65 @@
 console.log('Treemap');
+/*
 (function() {
-  const margin = {top: 40, bottom: 10, left: 120, right: 20};
-  const width = 1000 - margin.left - margin.right;
-  const height = 800 - margin.top - margin.bottom;
-  // Creates sources <svg> element
-  const svg = d3.select('body').append('svg')
-              .attr('width', width+margin.left+margin.right)
-              .attr('height', height+margin.top+margin.bottom);
-  // Group used to enforce margin
-  const g = svg.append('g')
-              .attr('transform', `translate(${margin.left},${margin.top})`);
-  // Global variable for all data
   var data;
+  let id = 0;
   
-  // Scales setup
-  const xscale = d3.scaleLinear().range([0, width]);
-  const yscale = d3.scaleBand().rangeRound([0, height]).paddingInner(0.1);
-  // Axis setup
-  const xaxis = d3.axisTop().scale(xscale);
-  const g_xaxis = g.append('g').attr('class','x axis');
-  const yaxis = d3.axisLeft().scale(yscale);
-  const g_yaxis = g.append('g').attr('class','y axis');
-  const bar_height = 50;
+  var width = 960,
+      height = 1060;
+
+  var format = d3.format(",d");
+
+  var color = d3.scaleOrdinal()
+      .range(d3.schemeCategory10
+      .map(function(c) { c = d3.rgb(c); c.opacity = 0.6; return c; }));
+
+  var stratify = d3.stratify()
+      .parentId(function(d) { return id++; });
+
+  var treemap = d3.treemap()
+      .size([width, height])
+      .padding(1)
+      .round(true);
   
   d3.json('http://localhost:7878/soccer/cardsByClub', function(json) {
     console.log('json', json);
 
     data = json.cards;
-    update(data, width);
+     var root = stratify(data)
+        .sum(function(d) { return d.value; })
+        .sort(function(a, b) { return b.height - a.height || b.value - a.value; });
+
+    console.log('root', root);
+    treemap(root);
+
+    let x = 0;
+    let y = 0;
+
+    d3.select("#treemap")
+      .selectAll(".node")
+      .data(root.leaves())
+      .enter().append("div")
+        .attr("class", "node")
+        .attr("title", function(d) { return d.value; })
+        .style("left", function(d) { return (x++) + "px"; })
+        .style("top", function(d) { return (y++) + "px"; })
+        .style("width", function(d) { return x + "px"; })
+        .style("height", function(d) { return y + "px"; })
+        //.style("background", function(d) { while (d.depth > 1) d = d.parent; return color(d.id); })
+      //.append("div")
+       // .attr("class", "node-label")
+       // .text(function(d) { return d.id.substring(d.id.lastIndexOf(".") + 1).split(/(?=[A-Z][^A-Z])/g).join("\n"); })
+      //.append("div")
+     // .attr("class", "node-value")
+     // .text(function(d) { return format(d.value); });
+    //update(data, width);
   });
+
+  function type(json) {
+    let d = json.cards;
+    d.value = +d.count;
+    return d;
+  };
   function update(new_data, width) {
     //update the scales
     xscale.domain([0, d3.max(new_data, (d) => d.count)]);
@@ -56,3 +87,4 @@ console.log('Treemap');
       rect.exit().remove();
   }
 })();
+*/
