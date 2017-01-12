@@ -1,11 +1,11 @@
-(function() {
-  
+function lineChart(elementId) {
+
   const margin = {top: 40, bottom: 10, left: 120, right: 20};
   const padding = {top: 0, bottom: 0, left: 50, right: 50};
   const width = 800 - margin.left - margin.right;
   const height = 300 - margin.top - margin.bottom;
   // Creates sources <svg> element
-  const svg = d3.select('#goals-cards-per-minute').append('svg')
+  const svg = d3.select(elementId).append('svg')
               .attr('width', '100%')//width+margin.left+margin.right)
               .attr('height', height+margin.top+margin.bottom)
               .attr('viewbox', '0 0 100 100')
@@ -18,7 +18,9 @@
               .attr('transform', 'scale(1, 1)')
               .attr('class', 'points');
   // Global variable for all data
-  var data;
+  var data,
+      minuteMin = 0,
+      minuteMax = 90;
 
   const bar_height = 50;
   /////////////////////////
@@ -35,7 +37,7 @@
   });
 
   function getWidth() {
-    return $('#goals-cards-per-minute').width() - padding.left - padding.right;
+    return $(elementId).width() - padding.left - padding.right;
   }
 
   // Scales setup
@@ -51,12 +53,71 @@
 
   g_yaxis.call(yaxis);
 
+  function drawMinuteSelectors() {
+    svg.selectAll('line.minute-slider').remove();
+
+    let lineMinuteMin = svg.append("line")
+    .attr("x1", xscale(minuteMin || 0))
+    .attr("y1", 0)
+    .attr("x2", xscale(minuteMin || 0))
+    .attr("y2", height)
+    .attr("class", "minute-slider min")
+    .style("stroke-width", 5)
+    .style("stroke", "red")
+    .style("fill", "none");
+
+    let lineMinuteMax = svg.append("line")
+    .attr("x1", xscale(minuteMax || 90))
+    .attr("y1", 0)
+    .attr("x2", xscale(minuteMax || 90))
+    .attr("y2", height)
+    .attr("class", "minute-slider max")
+    .style("stroke-width", 5)
+    .style("stroke", "red")
+    .style("fill", "none");
+
+function started() {
+  var circle = d3.select(this).classed("dragging", true);
+  svg.classed("dragging", true);
+
+  d3.event.on("drag", dragged).on("end", ended);
+
+  function dragged(d) {
+    circle.raise().attr("x1", d3.event.x).attr("x2", d3.event.x);
+  }
+
+  function ended() {
+    let position = Math.round(xscale.invert(d3.event.x));
+
+    if(circle.classed("min")) {
+      minuteMin = position;
+    } else {
+      minuteMax = position;
+    }
+
+    drawMinuteSelectors();
+
+    ObserverManager.notify('minuteChanged', {min: minuteMin, max: minuteMax});
+
+    circle.classed("dragging", false);
+    svg.classed("dragging", false);
+  }
+
+}
+
+d3.selectAll("line.minute-slider").call(d3.drag().on("start", started));
+
+
+  }
+
   function update(new_data) {
     // Remove all points and paths from the chart (update on resize)
-    svg.selectAll("g circle, path, text").remove();
+    svg.selectAll("g circle, path, text.axis").remove();
 
     let goals = new_data.goals;
     let cards = new_data.cards;
+
+    drawMinuteSelectors();
 
     const maxY = d3.max([ d3.max(goals, (d) => d.count), d3.max(cards, (d) => d.count) ]);
 
@@ -72,6 +133,7 @@
         .attr("transform",
               "translate(" + (getWidth()/2) + " ," + 
                              (height+margin.top+margin.bottom) + ")")
+        .attr("class", "axis")
         .style("text-anchor", "middle")
         .text("Minute");
 
@@ -80,7 +142,7 @@
     const rect2 = g.selectAll('circle').data(cards, (d) => d.count);
 
     var lineFunction = d3.line()
-                          .x(function(d) { return xscale(d.goal_min | d.card_min); })
+                          .x(function(d) { return xscale(d.goal_min || d.card_min || 0); })
                           .y(function(d) { return yscale(d.count); })
 
     // ENTER
@@ -140,4 +202,4 @@
       rect2.exit().remove();
   }
 
-})();
+}

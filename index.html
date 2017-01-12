@@ -12,5 +12,14 @@
     <div id="treemap"></div>
   
     <script src="main.js"></script>
+    <script>         
+        // Example of our observer
+        ObserverManager.register(function(ev, obj) {
+            console.log("observer triggered");
+            console.log(ev, obj);
+        });
+
+        lineChart('#goals-cards-per-minute');
+    </script>
 </body>
 </html>

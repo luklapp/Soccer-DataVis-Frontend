@@ -6,4 +6,11 @@ body {
   width: 100%;
 }
 
+svg.dragging {
+  cursor: ew-resize;
+}
+svg line.minute-slider:hover {
+  cursor: ew-resize;
+}
+
 /*# sourceMappingURL=style.css.map */

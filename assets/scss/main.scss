@@ -5,3 +5,16 @@ body {
 #goals-cards-per-minute {
     width: 100%;
 }
+
+svg {
+
+    &.dragging {
+        cursor: ew-resize;
+    }
+
+    line.minute-slider {
+        &:hover {
+            cursor: ew-resize;
+        }
+    }
+}
