@@ -15,7 +15,8 @@ module.exports = function (grunt) {
       scripts: {
         files: {
           'main.js': [
-            'bower_components/d3/d3.min.js', 
+            'bower_components/d3/d3.min.js',
+            'bower_components/jquery/dist/jquery.min.js',
             'tmp/**/*.js'
           ]
         }
@@ -54,7 +55,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-babel');
 
-  grunt.registerTask('js', ['babel', 'uglify']);
+  grunt.registerTask('js', ['babel', 'uglify']); // TODO: REMOVE TEMP DIR
   grunt.registerTask('default', ['sass', 'js', 'watch']);
 
 };
