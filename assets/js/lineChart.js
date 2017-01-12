@@ -83,16 +83,24 @@ function started() {
   d3.event.on("drag", dragged).on("end", ended);
 
   function dragged(d) {
-    circle.raise().attr("x1", d3.event.x).attr("x2", d3.event.x);
+    if(xscale.invert(d3.event.x) >= 0 && xscale.invert(d3.event.x) <= 90) {
+      circle.raise().attr("x1", d3.event.x).attr("x2", d3.event.x);
+    }
   }
 
   function ended() {
-    let position = Math.round(xscale.invert(d3.event.x));
+    let minuteNew = Math.round(xscale.invert(d3.event.x));
+
+    if(minuteNew < 0) {
+      minuteNew = 0;
+    } else if(minuteNew > 90) {
+      minuteNew = 90;  
+    }
 
     if(circle.classed("min")) {
-      minuteMin = position;
+      minuteMin = minuteNew;
     } else {
-      minuteMax = position;
+      minuteMax = minuteNew;
     }
 
     drawMinuteSelectors();
