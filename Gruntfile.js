@@ -15,8 +15,8 @@ module.exports = function (grunt) {
       scripts: {
         files: {
           'main.js': [
-            'assets/**/*.js',
-            'bower_components/d3/d3.min.js'
+            'bower_components/d3/d3.min.js',
+            'assets/**/*.js'
           ]
         }
       }
