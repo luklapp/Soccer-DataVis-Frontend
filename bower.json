@@ -1,0 +1,22 @@
+{
+  "name": "soccer-datavis-frontend",
+  "description": "",
+  "main": "index.js",
+  "authors": [
+    "Lukas Klappert <lklappert.mmt-m2016@fh-salzburg.ac.at>"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/luklapp/Soccer-DataVis-Frontend",
+  "moduleType": [],
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "d3": "^4.4.1"
+  }
+}
