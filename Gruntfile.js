@@ -11,20 +11,29 @@ module.exports = function (grunt) {
         }
       }
     },
+    uglify: {
+      scripts: {
+        files: {
+          'main.js': ['assets/**/*.js']
+        }
+      }
+    },
     watch: {
       sass: {
-        files: ['**/*.scss'],
-        tasks: ['sass'],
-        options: {
-          spawn: false,
-        },
+        files: ['assets/**/*.scss'],
+        tasks: ['sass']
       },
+      scripts: {
+        files: ['assets/**/*.js'],
+        tasks: ['uglify']
+      }
     }
   });
 
   grunt.loadNpmTasks('grunt-contrib-sass');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
 
-  grunt.registerTask('default', ['sass', 'watch']);
+  grunt.registerTask('default', ['sass', 'uglify', 'watch']);
 
 };
