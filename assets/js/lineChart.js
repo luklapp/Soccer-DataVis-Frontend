@@ -1,6 +1,7 @@
 (function() {
   
   const margin = {top: 40, bottom: 10, left: 120, right: 20};
+  const padding = {top: 0, bottom: 0, left: 50, right: 50};
   const width = 800 - margin.left - margin.right;
   const height = 300 - margin.top - margin.bottom;
   // Creates sources <svg> element
@@ -8,7 +9,9 @@
               .attr('width', '100%')//width+margin.left+margin.right)
               .attr('height', height+margin.top+margin.bottom)
               .attr('viewbox', '0 0 100 100')
-              .attr('preserveAspectRatio', 'none');
+              .attr('preserveAspectRatio', 'none')
+              .style('padding-left', padding.left)
+              .style('padding-right', padding.right);
 
   // Group used to enforce margin
   const g = svg.append('g')
@@ -31,34 +34,47 @@
     update(data);
   });
 
+  function getWidth() {
+    return $('#goals-cards-per-minute').width() - padding.left - padding.right;
+  }
+
   // Scales setup
-  const xscale = d3.scaleLinear().domain([0, 90]).range([0, $('#goals-cards-per-minute').width()]);
-  const yscale = d3.scaleLinear().domain([0, 1]).range([0, height]);
+  const xscale = d3.scaleLinear().domain([0, 90]).range([0, getWidth()]);
+  const yscale = d3.scaleLinear().domain([0, 1]).range([height, 0]);
 
   // Axis setup
   const xaxis = d3.axisBottom().scale(xscale);
-  const yaxis = d3.axisRight().scale(yscale);
+  const yaxis = d3.axisLeft().scale(yscale);
 
-  const g_xaxis = g.append('g').attr('class','x axis');
+  const g_xaxis = g.append('g').attr('class','x axis').attr('transform', `translate(0, ${height})`);
   const g_yaxis = g.append('g').attr('class','y axis');
 
   g_yaxis.call(yaxis);
 
   function update(new_data) {
     // Remove all points and paths from the chart (update on resize)
-    svg.selectAll("g circle, path").remove();
+    svg.selectAll("g circle, path, text").remove();
 
     let goals = new_data.goals;
     let cards = new_data.cards;
 
     const maxY = d3.max([ d3.max(goals, (d) => d.count), d3.max(cards, (d) => d.count) ]);
 
-    xscale.range([0, $('#goals-cards-per-minute').width()]);
+    xscale.range([0, getWidth()]);
     yscale.domain([0, maxY]);
     
     // Render the axis
     g_xaxis.call(xaxis);
     g_yaxis.call(yaxis);
+
+    // text label for the x axis
+    svg.append("text")             
+        .attr("transform",
+              "translate(" + (getWidth()/2) + " ," + 
+                             (height+margin.top+margin.bottom) + ")")
+        .style("text-anchor", "middle")
+        .text("Minute");
+
 
     const rect = g.selectAll('circle').data(goals, (d) => d.count);
     const rect2 = g.selectAll('circle').data(cards, (d) => d.count);
