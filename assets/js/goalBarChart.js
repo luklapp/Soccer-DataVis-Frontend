@@ -1,58 +1,52 @@
 console.log('GoalBarChart');
 (function() {
   const margin = {top: 40, bottom: 10, left: 120, right: 20};
-  const width = 1000 - margin.left - margin.right;
+  const width = 1500 - margin.left - margin.right;
   const height = 800 - margin.top - margin.bottom;
   // Creates sources <svg> element
-  const svg = d3.select('#treemap').append('svg')
+  const svg = d3.select('#goal-bar-chart').append('svg')
               .attr('width', width+margin.left+margin.right)
               .attr('height', height+margin.top+margin.bottom);
   // Group used to enforce margin
-  const g = svg.append('g')
-              .attr('transform', `translate(${margin.left},${margin.top})`);
-  // Global variable for all data
-  var data;
-  
-  // Scales setup
-  const xscale = d3.scaleLinear().range([0, width]);
-  const yscale = d3.scaleBand().rangeRound([0, height]).paddingInner(0.1);
-  // Axis setup
-  const xaxis = d3.axisTop().scale(xscale);
-  const g_xaxis = g.append('g').attr('class','x axis');
-  const yaxis = d3.axisLeft().scale(yscale);
-  const g_yaxis = g.append('g').attr('class','y axis');
-  const bar_height = 50;
-  
+  var x = d3.scaleBand().rangeRound([0, width]).padding(0.5),
+    y = d3.scaleLinear().rangeRound([height, 0]);
+
+  var colors = ["#2c7bb6", "#00a6ca","#00ccbc","#90eb9d","#ffff8c","#f9d057","#f29e2e","#e76818","#d7191c","#ffff8c"];
+
+
+  var g = svg.append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
   d3.json('http://localhost:7878/soccer/goalsByClub', function(json) {
-    console.log('json', json);
+    let data = json.goals;
+    let maxValue = d3.max(data, function(d) { return d.count; });
 
-    data = json.goals;
-    update(data, width);
+    x.domain(data.map(function(d) { return d.club_name; }));
+    y.domain([0, maxValue]);
+
+    g.append("g")
+        .attr("class", "axis axis--x")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x));
+
+    g.append("g")
+        .attr("class", "axis axis--y")
+        .call(d3.axisLeft(y).ticks(10, "s"))
+      .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", "0.71em")
+        .attr("text-anchor", "end")
+        .text("Count");
+
+    g.selectAll(".bar")
+      .data(data)
+      .enter().append("rect")
+        .attr("class", "bar")
+        .style("fill", function(d){ console.log(Math.floor((d.count/maxValue)*10)); return colors[Math.floor((d.count/maxValue)*10) - 1]})
+        .attr("x", function(d) { return x(d.club_name); })
+        .attr("y", function(d) { return y(d.count); })
+        .attr("width", x.bandwidth())
+        .attr("height", function(d) { return height - y(d.count); });
   });
-  function update(new_data, width) {
-    //update the scales
-    xscale.domain([0, d3.max(new_data, (d) => d.count)]);
-    yscale.domain(new_data.map((d) => d.club_name));
-    //render the axis
-    g_xaxis.call(xaxis);
-    g_yaxis.call(yaxis);
-    
-    const rect = g.selectAll('rect').data(new_data);
-    // ENTER
-    // new elements
-    const rect_enter = rect.enter().append('rect')
-      .attr('x', 0)
-    rect_enter.append('title');
-    // ENTER + UPDATE
-    // both old and new elements
-
-    rect.merge(rect_enter)
-      .attr('height', yscale.bandwidth())
-      .attr('width', (d) => xscale(d.count))
-      .attr('y', (d, i) => yscale(d.club_name));
-      rect.merge(rect_enter).select('title').text((d) => d.club_name);
-      // EXIT
-      // elements that aren't associated with data
-      rect.exit().remove();
-  }
 })();
