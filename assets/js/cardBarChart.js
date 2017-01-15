@@ -1,9 +1,9 @@
 console.log('CardBarChart');
 function cardBarChart(selector) {
   let dataOptions = {min: 1, max: 90, limit: 20};
-  const margin = {top: 40, bottom: 120, left: 120, right: 20};
-  const width = 1500 - margin.left - margin.right;
-  const height = 800 - margin.top - margin.bottom;
+  const margin = {top: 40, bottom: 120, left: 50, right: 20};
+  const width = 950 - margin.left - margin.right;
+  const height = 400 - margin.top - margin.bottom;
   // Creates sources <svg> element
   const svg = d3.select(selector).append('svg')
               .attr('width', width+margin.left+margin.right)
@@ -17,6 +17,14 @@ function cardBarChart(selector) {
 
   var g = svg.append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  //Title
+  svg.append("text")
+    .attr("x", (width / 2))
+    .attr("y", (margin.top / 2))
+    .attr("text-anchor", "middle")
+    .style("font-size", "16px")
+    .text("Cards per Country");
 
   requestData(dataOptions);
 

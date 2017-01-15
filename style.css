@@ -6,6 +6,12 @@ body {
   width: 100%;
 }
 
+.half-width {
+  max-width: 50%;
+  margin: 0;
+  float: left;
+}
+
 svg.dragging {
   cursor: ew-resize;
 }
