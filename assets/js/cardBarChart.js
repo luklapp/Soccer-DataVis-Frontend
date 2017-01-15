@@ -1,5 +1,5 @@
-console.log('GoalBarChart');
-function goalBarChart(selector) {
+console.log('CardBarChart');
+function cardBarChart(selector) {
   let dataOptions = {min: 1, max: 90, limit: 20};
   const margin = {top: 40, bottom: 120, left: 120, right: 20};
   const width = 1500 - margin.left - margin.right;
@@ -18,7 +18,7 @@ function goalBarChart(selector) {
   var g = svg.append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  requestData({min: 1, max: 90});
+  requestData(dataOptions);
 
   ObserverManager.register(function(ev, obj) {
       if (ev === 'minuteChanged') {
@@ -39,11 +39,11 @@ function goalBarChart(selector) {
     var maxMinute = options.max || 90;
     var limit = options.limit || 'null';
 
-    d3.json('http://localhost:7878/soccer/goalsByCountry?minuteMin=' + minMinute + '&minuteMax=' + maxMinute + '&limit=' + limit, function(json) {
+    d3.json('http://localhost:7878/soccer/cardsByCountry?minuteMin=' + minMinute + '&minuteMax=' + maxMinute + '&limit=' + limit, function(json) {
       svg.selectAll("g text, g .axis, .bar").remove();
 
-      let data = json.goals;
-      console.log('goals', data);
+      let data = json.cards;
+      console.log('cards',data);
       let maxValue = d3.max(data, function(d) { return d.count; });
 
       x.domain(data.map(function(d) { return d.count_name; }));

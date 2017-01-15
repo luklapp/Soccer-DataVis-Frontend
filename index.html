@@ -10,10 +10,11 @@
 <body>
     <div id="goals-cards-per-minute"></div>
     <div id="treemap"></div>
+    <div id="card-bar-chart"></div>
     <div id="goal-bar-chart"></div>
-  
+
     <script src="main.js"></script>
-    <script>         
+    <script>
         // Example of our observer
         ObserverManager.register(function(ev, obj) {
             console.log("observer triggered");
@@ -22,6 +23,7 @@
 
         lineChart('#goals-cards-per-minute');
         goalBarChart('#goal-bar-chart');
+        cardBarChart('#card-bar-chart');
     </script>
 </body>
 </html>
