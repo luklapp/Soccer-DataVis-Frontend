@@ -1,6 +1,6 @@
 console.log('GoalBarChart');
 function goalBarChart(selector) {
-  const margin = {top: 40, bottom: 10, left: 120, right: 20};
+  const margin = {top: 40, bottom: 120, left: 120, right: 20};
   const width = 1500 - margin.left - margin.right;
   const height = 800 - margin.top - margin.bottom;
   // Creates sources <svg> element
@@ -42,13 +42,17 @@ function goalBarChart(selector) {
       g.append("g")
           .attr("class", "axis axis--x")
           .attr("transform", "translate(0," + height + ")")
-          .call(d3.axisBottom(x));
+          .call(d3.axisBottom(x))
+          .selectAll("text")
+            .style("text-anchor", "end")
+            .attr("dx", "-.8em")
+            .attr("dy", ".15em")
+            .attr("transform", "rotate(-65)" );;
 
       g.append("g")
           .attr("class", "axis axis--y")
           .call(d3.axisLeft(y).ticks(10, "s"))
         .append("text")
-          .attr("transform", "rotate(-90)")
           .attr("y", 6)
           .attr("dy", "0.71em")
           .attr("text-anchor", "end")
