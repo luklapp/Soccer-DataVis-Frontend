@@ -9,7 +9,7 @@ console.log('GoalBarChart');
               .attr('height', height+margin.top+margin.bottom);
   // Group used to enforce margin
   var x = d3.scaleBand().rangeRound([0, width]).padding(0.5),
-    y = d3.scaleLinear().rangeRound([height, 0]);
+    y = d3.scaleLinear().rangeRound([0, height]);
 
   var colors = ["#2c7bb6", "#00a6ca","#00ccbc","#90eb9d","#ffff8c","#f9d057","#f29e2e","#e76818","#d7191c","#ffff8c"];
 
@@ -17,12 +17,13 @@ console.log('GoalBarChart');
   var g = svg.append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  d3.json('http://localhost:7878/soccer/goalsByClub', function(json) {
-    let data = json.goals;
+  d3.json('http://localhost:7878/soccer/cardsByCountry', function(json) {
+    let data = json.cards;
+    console.log(data);
     let maxValue = d3.max(data, function(d) { return d.count; });
 
-    x.domain(data.map(function(d) { return d.club_name; }));
-    y.domain([0, maxValue]);
+    x.domain(data.map(function(d) { return d.count_name; }));
+    y.domain([maxValue, 0]);
 
     g.append("g")
         .attr("class", "axis axis--x")
@@ -43,9 +44,9 @@ console.log('GoalBarChart');
       .data(data)
       .enter().append("rect")
         .attr("class", "bar")
-        .style("fill", function(d){ console.log(Math.floor((d.count/maxValue)*10)); return colors[Math.floor((d.count/maxValue)*10) - 1]})
-        .attr("x", function(d) { return x(d.club_name); })
-        .attr("y", function(d) { return y(d.count); })
+        //.style("fill", function(d){ console.log(Math.floor((d.count/maxValue)*10)); return colors[Math.floor((d.count/maxValue)*10) - 1]})
+        .attr("x", function(d) { return x(d.count_name); })
+        .attr("y", function(d) { /*console.log("count", d.count); console.log("y()", height - y(d.count));*/ return y(d.count); })
         .attr("width", x.bandwidth())
         .attr("height", function(d) { return height - y(d.count); });
   });
