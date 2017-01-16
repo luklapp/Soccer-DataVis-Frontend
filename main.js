@@ -573,7 +573,7 @@ function stackedBarChart(selector, request, title, wid) {
     x.domain(data.map(function (d) {
       return d.name;
     }));
-    if (!initialized || true) {
+    if (!initialized) {
       y.domain([maxValue, 0]);
     }
     g.append("g").attr("class", "axis axis--x").attr("transform", "translate(0," + height + ")").call(d3.axisBottom(x)).selectAll("text").style("text-anchor", "end").attr("dx", "-.8em").attr("dy", ".15em").attr("transform", "rotate(-65)");;

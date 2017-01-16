@@ -12,10 +12,26 @@ body {
   float: left;
 }
 
-#goal-club-bar-chart {
-  width: 97vw;
-  svg {
+h2 {
+  text-align: center;
+  font-size: 14pt;
+  font-weight: 400;
+}
+
+#goal-club-bar-chart, #card-club-bar-chart {
+  border-left: 19px solid white;
+  background: white;
+  position: relative;
+  box-sizing: border-box;
+  overflow-x: hidden;
+
+  .svg {
+    width: 97vw;
     overflow-x: scroll;
+
+    svg {
+      padding-right: 800px !important;
+    }
   }
 }
 

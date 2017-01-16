@@ -70,7 +70,7 @@ function stackedBarChart(selector, request, title, wid) {
     let maxValue = d3.max(data, function(d) { return d.count; });
 
     x.domain(data.map(function(d) { return d.name; }));
-    if (!initialized || true) {
+    if (!initialized) {
       y.domain([maxValue, 0]);
     }
     g.append("g")

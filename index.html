@@ -13,7 +13,14 @@
     <div id="goal-bar-chart" class="half-width"></div>
     <div id="card-bar-chart" class="half-width"></div>
     <div id="scatter-plot"></div>
-    <div id="goal-club-bar-chart"><h2>Goals by Club</h2></div>
+    <div id="goal-club-bar-chart" class="half-width">
+      <h2>Goals by Club</h2>
+      <div class="svg"></div>
+    </div>
+    <div id="card-club-bar-chart" class="half-width">
+      <h2>Cards by Club</h2>
+      <div class="svg"></div>
+    </div>
 
     <script src="main.js"></script>
     <script>
@@ -32,7 +39,8 @@
             getTemplateString: (d) => `<b>${d.club_name}</b><p>AVG Goals: ${d.y}<br>AVG Cards: ${d.x}</p>`,
             api: 'soccer/avgGoalsCards'
         });
-        barChart('#goal-club-bar-chart', 'goalsByClub', '', 3500, 500);
+        barChart('#goal-club-bar-chart .svg', 'goalsByClub', '', 3500, 500);
+        barChart('#card-club-bar-chart .svg', 'cardsByClub', '', 4000, 500);
     </script>
 </body>
 </
