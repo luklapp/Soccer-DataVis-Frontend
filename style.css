@@ -12,6 +12,13 @@ body {
   float: left;
 }
 
+#goal-club-bar-chart {
+  width: 97vw;
+}
+#goal-club-bar-chart svg {
+  overflow-x: scroll;
+}
+
 svg.dragging {
   cursor: ew-resize;
 }

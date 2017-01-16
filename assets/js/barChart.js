@@ -1,13 +1,13 @@
-function barChart(selector, request) {
+function barChart(selector, request, title, wid, heig) {
   let dataOptions = {min: 1, max: 90, limit: 10};
   const margin = {top: 40, bottom: 120, left: 50, right: 20};
-  const padding = {top: 0, bottom: 0, left: 0, right: 0};
-  const width = 800 - margin.left - margin.right;
-  const height = 400 - margin.top - margin.bottom;
+  const padding = {top: 0, bottom: 0, left: -120, right: 0};
+  const width = wid - margin.left - margin.right;
+  const height = heig - margin.top - margin.bottom;
   let initialized = false;
   // Creates sources <svg> element
   const svg = d3.select(selector).append('svg')
-              .attr('width', '100%')
+              .attr('width', wid)
               .attr('height', height+margin.top+margin.bottom)
               .attr('viewbox', '0 0 100 100')
               .attr('preserveAspectRatio', 'none')
@@ -29,7 +29,7 @@ function barChart(selector, request) {
     .attr("y", (margin.top / 2))
     .attr("text-anchor", "middle")
     .style("font-size", "16px")
-    .text("Goals per Country");
+    .text(title);
 
 
   requestData(dataOptions);
@@ -56,7 +56,7 @@ function barChart(selector, request) {
     d3.json('http://localhost:7878/soccer/' + request + '?minuteMin=' + minMinute + '&minuteMax=' + maxMinute + '&limit=' + limit, function(data) {
       svg.selectAll("g text, g .axis").remove();
 
-      console.log('goals', data);
+      console.log(request, data);
       draw(data);
 
       initialized = true;
@@ -66,7 +66,7 @@ function barChart(selector, request) {
   function draw(data) {
     let maxValue = d3.max(data, function(d) { return d.count; });
 
-    x.domain(data.map(function(d) { return d.count_name; }));
+    x.domain(data.map(function(d) { return d.name; }));
     if (!initialized) {
       y.domain([maxValue, 0]);
     }
@@ -89,10 +89,10 @@ function barChart(selector, request) {
         .attr("text-anchor", "end")
         .text("Count");
 
-    const rect = g.selectAll('.bar').data(data, (d) => d.count_name);
+    const rect = g.selectAll('.bar').data(data, (d) => d.name);
     const rect_enter = rect.enter().append('rect')
       .attr("class", "bar")
-      .attr("x", function(d) { return x(d.count_name); })
+      .attr("x", function(d) { return x(d.name); })
       .attr("y", function(d) {
          if(!initialized)
             return height;
@@ -109,18 +109,20 @@ function barChart(selector, request) {
       })
       .on("mouseout", function(d) {
         d3.select(this).style("fill", function(d){
-          return colorScale(d.cr);
+          //return colorScale(d.cr);"#FF8A01"
+          return "#FF8A01";
         })
       })
       .style("fill", function(d){
-          return colorScale(d.cr);
+          //return colorScale(d.cr);
+          return "#FF8A01";
       });
       rect_enter.append('title')
-        .text(function(d) { return `${d.count_name} - ${d.count}`; });
+        .text(function(d) { return `${d.name} - ${d.count}`; });
 
     rect.merge(rect_enter)
       .transition().duration(1000)
-        .attr("x", function(d) { return x(d.count_name); })
+        .attr("x", function(d) { return x(d.name); })
         .attr("y", function(d) { return y(d.count); })
         .attr("height", function(d) { return height - y(d.count); });
 

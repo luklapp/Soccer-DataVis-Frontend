@@ -13,6 +13,7 @@
     <div id="goal-bar-chart" class="half-width"></div>
     <div id="card-bar-chart" class="half-width"></div>
     <div id="scatter-plot"></div>
+    <div id="goal-club-bar-chart"><h2>Goals by Club</h2></div>
 
     <script src="main.js"></script>
     <script>
@@ -24,13 +25,14 @@
 
         //goalTreemap('#goal-treemap');
         lineChart('#goals-cards-per-minute');
-        barChart('#goal-bar-chart', 'goalsByCountry');
-        stackedBarChart('#card-bar-chart', 'cardsByCountry');
+        barChart('#goal-bar-chart', 'goalsByCountry', 'Goals by Country', 700, 400);
+        stackedBarChart('#card-bar-chart', 'cardsByCountry', 'Cards by Country', 700);
         scatterPlot({
             element: '#scatter-plot',
             getTemplateString: (d) => `<b>${d.club_name}</b><p>AVG Goals: ${d.y}<br>AVG Cards: ${d.x}</p>`,
             api: 'soccer/avgGoalsCards'
         });
+        barChart('#goal-club-bar-chart', 'goalsByClub', '', 3500, 500);
     </script>
 </body>
-</html>
+</

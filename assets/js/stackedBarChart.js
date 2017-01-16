@@ -1,9 +1,11 @@
-function stackedBarChart(selector, request) {
+function stackedBarChart(selector, request, title, wid) {
   let dataOptions = {min: 1, max: 90, limit: 10};
   const margin = {top: 40, bottom: 120, left: 50, right: 20};
   const padding = {top: 0, bottom: 0, left: 0, right: 0};
-  const width = 800 - margin.left - margin.right;
+  const width = wid - margin.left - margin.right;
   const height = 400 - margin.top - margin.bottom;
+
+
   let initialized = false;
   // Creates sources <svg> element
   const svg = d3.select(selector).append('svg')
@@ -29,7 +31,7 @@ function stackedBarChart(selector, request) {
     .attr("y", (margin.top / 2))
     .attr("text-anchor", "middle")
     .style("font-size", "16px")
-    .text("Cards per Country");
+    .text(title);
 
   requestData(dataOptions);
 
@@ -67,7 +69,7 @@ function stackedBarChart(selector, request) {
     const colors = ['grey', 'yellow', 'orange', 'red'];
     let maxValue = d3.max(data, function(d) { return d.count; });
 
-    x.domain(data.map(function(d) { return d.count_name; }));
+    x.domain(data.map(function(d) { return d.name; }));
     if (!initialized || true) {
       y.domain([maxValue, 0]);
     }
@@ -98,12 +100,12 @@ function stackedBarChart(selector, request) {
       return h;
     }
 
-    const rect = g.selectAll('.bar').data(data, (d) => d.count_name);
+    const rect = g.selectAll('.bar').data(data, (d) => d.name);
     let rect_enter;
     for (let c = 1; c <= 3; c++) {
       rect_enter = rect.enter().append('rect')
         .attr("class", "bar")
-        .attr("x", function(d) { return x(d.count_name); })
+        .attr("x", function(d) { return x(d.name); })
         .attr("y", function(d) {
            if(!initialized)
               return height;
@@ -129,11 +131,11 @@ function stackedBarChart(selector, request) {
             return colors[c];
         });
         rect_enter.append('title')
-          .text(function(d) { return `${d.count_name} - ${d[cardNr[c]]}`; });
+          .text(function(d) { return `${d.name} - ${d[cardNr[c]]}`; });
 
       rect.merge(rect_enter)
         .transition().duration(1000)
-          .attr("x", function(d) { return x(d.count_name); })
+          .attr("x", function(d) { return x(d.name); })
           .attr("y", function(d) { return y(getHeight(d, c)); })
           .attr("height", function(d) { return height - y(d[cardNr[c]]); });
 
