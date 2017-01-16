@@ -1,0 +1,18 @@
+.tooltip {
+    background: #222;
+    color: #fff;
+    font-size: 11px;
+    position: absolute;
+    padding: 10px 20px;
+    text-align: center;
+    border-radius: 4px;
+
+    &.hidden {
+        display: none;
+    }
+
+    p {
+        margin-bottom: 0px;
+    }
+
+}

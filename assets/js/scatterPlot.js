@@ -4,6 +4,7 @@ function scatterPlot(config) {
   const padding = {top: 0, bottom: 0, left: 50, right: 50};
   const width = 800 - margin.left - margin.right;
   const height = 300 - margin.top - margin.bottom;
+  const tooltip = d3.tooltip();
   
   // Creates sources <svg> element
   const svg = d3.select(config.element).append('svg')
@@ -89,7 +90,14 @@ function scatterPlot(config) {
     const rect_enter = points.enter().append('circle')
       .attr('cx', 0)
       .attr('cy', 0)
-    rect_enter.append('title');
+      .on('mouseover', () => {
+        tooltip.show(d3.event);
+      })
+      .on('mouseout', () => {
+        tooltip.hide();
+      });
+
+    rect_enter.append('text');
 
     // ENTER + UPDATE
     // both old and new elements
@@ -100,7 +108,7 @@ function scatterPlot(config) {
       .attr("r", `${radius}px`)
       .attr("fill", "green");
 
-      points.merge(rect_enter).select('title').text((d) => config.getTemplateString(d));
+      points.merge(rect_enter).select('text').text((d) => config.getTemplateString(d));
 
       // EXIT
       // elements that aren't associated with data

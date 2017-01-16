@@ -6,9 +6,13 @@ module.exports = function (grunt) {
         options: {
           style: 'expanded'
         },
-        files: {
-          'style.css': 'assets/**/*.scss'
-        }
+        files: [{
+          expand: true,
+          cwd: 'assets/scss',
+          src: ['*.scss'],
+          dest: 'tmp/css',
+          ext: '.css'
+        }]
       }
     },
     uglify: {
@@ -17,7 +21,8 @@ module.exports = function (grunt) {
           'main.js': [
             'bower_components/d3/d3.min.js',
             'bower_components/jquery/dist/jquery.min.js',
-            'tmp/**/*.js'
+            'tmp/extensions/*.js',
+            'tmp/js/*.js'
           ]
         }
       }
@@ -41,7 +46,7 @@ module.exports = function (grunt) {
     watch: {
       sass: {
         files: ['assets/**/*.scss'],
-        tasks: ['sass']
+        tasks: ['sass', 'concat:styles']
       },
       scripts: {
         files: ['assets/**/*.js'],
@@ -56,6 +61,11 @@ module.exports = function (grunt) {
             'bower_components/jquery/dist/jquery.min.js',
             'tmp/**/*.js'
           ]
+        }
+      },
+      styles: {
+        files: {
+          'style.css': ['tmp/css/*.css']
         }
       }
     }

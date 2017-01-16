@@ -27,7 +27,7 @@
         cardBarChart('#card-bar-chart');
         scatterPlot({
             element: '#scatter-plot',
-            getTemplateString: (d) => `${d.club_name}`,
+            getTemplateString: (d) => `<b>${d.club_name}</b><p>AVG Goals: ${d.y}<br>AVG Cards: ${d.x}</p>`,
             api: 'soccer/avgGoalsCards'
         });
     </script>

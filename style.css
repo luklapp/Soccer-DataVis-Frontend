@@ -19,4 +19,22 @@ svg line.minute-slider:hover {
   cursor: ew-resize;
 }
 
-/*# sourceMappingURL=style.css.map */
+/*# sourceMappingURL=main.css.map */
+
+.tooltip {
+  background: #222;
+  color: #fff;
+  font-size: 11px;
+  position: absolute;
+  padding: 10px 20px;
+  text-align: center;
+  border-radius: 4px;
+}
+.tooltip.hidden {
+  display: none;
+}
+.tooltip p {
+  margin-bottom: 0px;
+}
+
+/*# sourceMappingURL=tooltip.css.map */
