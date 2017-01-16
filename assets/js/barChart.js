@@ -54,7 +54,7 @@ function barChart(selector, request) {
     var limit = options.limit || 'null';
 
     d3.json('http://localhost:7878/soccer/' + request + '?minuteMin=' + minMinute + '&minuteMax=' + maxMinute + '&limit=' + limit, function(data) {
-      svg.selectAll("g text, g .axis, .bar").remove();
+      svg.selectAll("g text, g .axis").remove();
 
       console.log('goals', data);
       draw(data);
@@ -67,7 +67,7 @@ function barChart(selector, request) {
     let maxValue = d3.max(data, function(d) { return d.count; });
 
     x.domain(data.map(function(d) { return d.count_name; }));
-    if (!initialized || true) {
+    if (!initialized) {
       y.domain([maxValue, 0]);
     }
     g.append("g")

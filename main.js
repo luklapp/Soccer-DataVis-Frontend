@@ -43,6 +43,113 @@ d3.tooltip = function () {
 
 'use strict';
 
+function barChart(selector, request) {
+  var dataOptions = { min: 1, max: 90, limit: 10 };
+  var margin = { top: 40, bottom: 120, left: 50, right: 20 };
+  var padding = { top: 0, bottom: 0, left: 0, right: 0 };
+  var width = 800 - margin.left - margin.right;
+  var height = 400 - margin.top - margin.bottom;
+  var initialized = false;
+  // Creates sources <svg> element
+  var svg = d3.select(selector).append('svg').attr('width', '100%').attr('height', height + margin.top + margin.bottom).attr('viewbox', '0 0 100 100').attr('preserveAspectRatio', 'none').style('padding-left', padding.left).style('padding-right', padding.right);
+  // Group used to enforce margin
+  var x = d3.scaleBand().rangeRound([0, width]).padding(0.5),
+      y = d3.scaleLinear().rangeRound([0, height]);
+
+  var max = 20,
+      data = [];
+  var colorScale = d3.scaleLinear().domain([0, max]).range(["#FF8A01", "#019DE2"]);
+
+  var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  //Title
+  svg.append("text").attr("x", width / 2).attr("y", margin.top / 2).attr("text-anchor", "middle").style("font-size", "16px").text("Goals per Country");
+
+  requestData(dataOptions);
+
+  ObserverManager.register(function (ev, obj) {
+    if (ev === 'minuteChanged') {
+      for (var o in dataOptions) {
+        console.log(o);
+        if (obj[o]) {
+          if (dataOptions[o] !== obj[o]) {
+            dataOptions[o] = obj[o];
+          }
+        }
+      }
+      requestData(dataOptions);
+    }
+  });
+
+  function requestData(options) {
+    var minMinute = options.min || 1;
+    var maxMinute = options.max || 90;
+    var limit = options.limit || 'null';
+
+    d3.json('http://localhost:7878/soccer/' + request + '?minuteMin=' + minMinute + '&minuteMax=' + maxMinute + '&limit=' + limit, function (data) {
+      svg.selectAll("g text, g .axis").remove();
+
+      console.log('goals', data);
+      draw(data);
+
+      initialized = true;
+    });
+  };
+
+  function draw(data) {
+    var maxValue = d3.max(data, function (d) {
+      return d.count;
+    });
+
+    x.domain(data.map(function (d) {
+      return d.count_name;
+    }));
+    if (!initialized) {
+      y.domain([maxValue, 0]);
+    }
+    g.append("g").attr("class", "axis axis--x").attr("transform", "translate(0," + height + ")").call(d3.axisBottom(x)).selectAll("text").style("text-anchor", "end").attr("dx", "-.8em").attr("dy", ".15em").attr("transform", "rotate(-65)");;
+
+    g.append("g").attr("class", "axis axis--y").call(d3.axisLeft(y).ticks(10, "s")).append("text").attr("y", 6).attr("dy", "0.71em").attr("text-anchor", "end").text("Count");
+
+    var rect = g.selectAll('.bar').data(data, function (d) {
+      return d.count_name;
+    });
+    var rect_enter = rect.enter().append('rect').attr("class", "bar").attr("x", function (d) {
+      return x(d.count_name);
+    }).attr("y", function (d) {
+      if (!initialized) return height;
+      return y(d.count);
+    }).attr("width", x.bandwidth()).attr('height', function (d) {
+      if (!initialized) return 0;
+      return height - y(d.count);
+    }).on("mouseover", function (d) {
+      d3.select(this).style("fill", "grey");
+    }).on("mouseout", function (d) {
+      d3.select(this).style("fill", function (d) {
+        return colorScale(d.cr);
+      });
+    }).style("fill", function (d) {
+      return colorScale(d.cr);
+    });
+    rect_enter.append('title').text(function (d) {
+      return d.count_name + ' - ' + d.count;
+    });
+
+    rect.merge(rect_enter).transition().duration(1000).attr("x", function (d) {
+      return x(d.count_name);
+    }).attr("y", function (d) {
+      return y(d.count);
+    }).attr("height", function (d) {
+      return height - y(d.count);
+    });
+
+    rect.exit().remove();
+  };
+};
+//# sourceMappingURL=barChart.js.map
+
+'use strict';
+
 //wie bisher aber getrennte counts pro kartentyp, typen nacheinander hinzufügen
 console.log('CardBarChart');
 function cardBarChart(selector) {
@@ -617,94 +724,186 @@ function scatterPlot(config) {
 
 'use strict';
 
-console.log('Treemap');
-/*
-(function() {
-  var data;
-  let id = 0;
-  
+function stackedBarChart(selector, request) {
+  var dataOptions = { min: 1, max: 90, limit: 10 };
+  var margin = { top: 40, bottom: 120, left: 50, right: 20 };
+  var padding = { top: 0, bottom: 0, left: 0, right: 0 };
+  var width = 800 - margin.left - margin.right;
+  var height = 400 - margin.top - margin.bottom;
+  var initialized = false;
+  // Creates sources <svg> element
+  var svg = d3.select(selector).append('svg').attr('width', '100%').attr('height', height + margin.top + margin.bottom).attr('viewbox', '0 0 100 100').attr('preserveAspectRatio', 'none').style('padding-left', padding.left).style('padding-right', padding.right);
+  // Group used to enforce margin
+  var x = d3.scaleBand().rangeRound([0, width]).padding(0.5),
+      y = d3.scaleLinear().rangeRound([0, height]);
+
+  var max = 20,
+      data = [];
+  var colorScale = d3.scaleLinear().domain([0, max]).range(["#FF8A01", "#019DE2"]);
+
+  var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  //Title
+  svg.append("text").attr("x", width / 2).attr("y", margin.top / 2).attr("text-anchor", "middle").style("font-size", "16px").text("Cards per Country");
+
+  requestData(dataOptions);
+
+  ObserverManager.register(function (ev, obj) {
+    if (ev === 'minuteChanged') {
+      for (var o in dataOptions) {
+        console.log(o);
+        if (obj[o]) {
+          if (dataOptions[o] !== obj[o]) {
+            dataOptions[o] = obj[o];
+          }
+        }
+      }
+      requestData(dataOptions);
+    }
+  });
+
+  function requestData(options) {
+    var minMinute = options.min || 1;
+    var maxMinute = options.max || 90;
+    var limit = options.limit || 'null';
+
+    d3.json('http://localhost:7878/soccer/' + request + '?minuteMin=' + minMinute + '&minuteMax=' + maxMinute + '&limit=' + limit, function (data) {
+      svg.selectAll("g text, g .axis, .bar").remove();
+
+      console.log('cards', data);
+      draw(data);
+
+      initialized = true;
+    });
+  };
+
+  function draw(data) {
+    var cardNr = ['count', 'card1', 'card2', 'card3'];
+    var colors = ['grey', 'yellow', 'orange', 'red'];
+    var maxValue = d3.max(data, function (d) {
+      return d.count;
+    });
+
+    x.domain(data.map(function (d) {
+      return d.count_name;
+    }));
+    if (!initialized || true) {
+      y.domain([maxValue, 0]);
+    }
+    g.append("g").attr("class", "axis axis--x").attr("transform", "translate(0," + height + ")").call(d3.axisBottom(x)).selectAll("text").style("text-anchor", "end").attr("dx", "-.8em").attr("dy", ".15em").attr("transform", "rotate(-65)");;
+
+    g.append("g").attr("class", "axis axis--y").call(d3.axisLeft(y).ticks(10, "s")).append("text").attr("y", 6).attr("dy", "0.71em").attr("text-anchor", "end").text("Count");
+
+    function getHeight(data, i) {
+      var h = 0;
+      for (var j = 1; j <= i; j++) {
+        h += data[cardNr[j]];
+      }
+      return h;
+    }
+
+    var rect = g.selectAll('.bar').data(data, function (d) {
+      return d.count_name;
+    });
+    var rect_enter = void 0;
+
+    var _loop = function _loop(c) {
+      rect_enter = rect.enter().append('rect').attr("class", "bar").attr("x", function (d) {
+        return x(d.count_name);
+      }).attr("y", function (d) {
+        if (!initialized) return height;
+        return y(getHeight(d, c));
+      }).attr("width", x.bandwidth()).attr('height', function (d) {
+        if (!initialized) return 0;
+        return height - y(d[cardNr[c]]);
+      }).on("mouseover", function (d) {
+        d3.select(this).style("fill", function (d) {
+          return colors[0];
+        });
+      }).on("mouseout", function (d) {
+        d3.select(this).style("fill", function (d) {
+          return colors[c];
+        });
+      }).style("fill", function (d) {
+        return colors[c];
+      });
+      rect_enter.append('title').text(function (d) {
+        return d.count_name + ' - ' + d[cardNr[c]];
+      });
+
+      rect.merge(rect_enter).transition().duration(1000).attr("x", function (d) {
+        return x(d.count_name);
+      }).attr("y", function (d) {
+        return y(getHeight(d, c));
+      }).attr("height", function (d) {
+        return height - y(d[cardNr[c]]);
+      });
+
+      rect.exit().remove();
+    };
+
+    for (var c = 1; c <= 3; c++) {
+      _loop(c);
+    }
+  };
+};
+//# sourceMappingURL=stackedBarChart.js.map
+
+/*console.log('Treemap');
+function goalTreemap(selector) {
+  let dataOptions = {min: 1, max: 90, limit: 20};
   var width = 960,
-      height = 1060;
+    height = 1060;
 
   var format = d3.format(",d");
 
   var color = d3.scaleOrdinal()
       .range(d3.schemeCategory10
-      .map(function(c) { c = d3.rgb(c); c.opacity = 0.6; return c; }));
+          .map(function(c) { c = d3.rgb(c); c.opacity = 0.6; return c; }));
 
   var stratify = d3.stratify()
-      .parentId(function(d) { return id++; });
+      .parentId(function(d) { //return d.id.substring(0, d.id.lastIndexOf("."));
+      });
 
   var treemap = d3.treemap()
       .size([width, height])
       .padding(1)
       .round(true);
-  
-  d3.json('http://localhost:7878/soccer/cardsByClub', function(json) {
-    console.log('json', json);
 
-    data = json.cards;
-     var root = stratify(data)
-        .sum(function(d) { return d.value; })
-        .sort(function(a, b) { return b.height - a.height || b.value - a.value; });
+  requestData(dataOptions);
+  function requestData(options) {
+    var minMinute = options.min || 1;
+    var maxMinute = options.max || 90;
+    var limit = options.limit || 'null';
 
-    console.log('root', root);
-    treemap(root);
+    d3.json('http://localhost:7878/soccer/goalsByCountry?minuteMin=' + minMinute + '&minuteMax=' + maxMinute + '&limit=' + limit, function(json) {
+      var data = json.goals;
+      var root = stratify(data)
+      .sum(function(d) { return d.value ? 1 : 0; })
+      .sort(function(a, b) { return b.height - a.height || b.value - a.value; });
 
-    let x = 0;
-    let y = 0;
+      treemap(root);
 
-    d3.select("#treemap")
-      .selectAll(".node")
-      .data(root.leaves())
-      .enter().append("div")
-        .attr("class", "node")
-        .attr("title", function(d) { return d.value; })
-        .style("left", function(d) { return (x++) + "px"; })
-        .style("top", function(d) { return (y++) + "px"; })
-        .style("width", function(d) { return x + "px"; })
-        .style("height", function(d) { return y + "px"; })
-        //.style("background", function(d) { while (d.depth > 1) d = d.parent; return color(d.id); })
-      //.append("div")
-       // .attr("class", "node-label")
-       // .text(function(d) { return d.id.substring(d.id.lastIndexOf(".") + 1).split(/(?=[A-Z][^A-Z])/g).join("\n"); })
-      //.append("div")
-     // .attr("class", "node-value")
-     // .text(function(d) { return format(d.value); });
-    //update(data, width);
-  });
-
-  function type(json) {
-    let d = json.cards;
-    d.value = +d.count;
-    return d;
+      d3.select("body")
+        .selectAll(".node")
+        .data(root.leaves())
+        .enter().append("div")
+          .attr("class", "node")
+          .attr("title", function(d) { return d.id; })
+          .style("left", function(d) { return d.x0 + "px"; })
+          .style("top", function(d) { return d.y0 + "px"; })
+          .style("width", function(d) { return d.x1 - d.x0 + "px"; })
+          .style("height", function(d) { return d.y1 - d.y0 + "px"; })
+          .style("background", function(d) { while (d.depth > 1) d = d.parent; return color(d.id); })
+        .append("div")
+          .attr("class", "node-label")
+          .text(function(d) { //return d.count_name.substring(d.id.lastIndexOf(".") + 1).split(/(?=[A-Z][^A-Z])/g).join("\n"); 
+          return 'Test';
+          });
+        });
   };
-  function update(new_data, width) {
-    //update the scales
-    xscale.domain([0, d3.max(new_data, (d) => d.count)]);
-    yscale.domain(new_data.map((d) => d.club_name));
-    //render the axis
-    g_xaxis.call(xaxis);
-    g_yaxis.call(yaxis);
-    
-    const rect = g.selectAll('rect').data(new_data);
-    // ENTER
-    // new elements
-    const rect_enter = rect.enter().append('rect')
-      .attr('x', 0)
-    rect_enter.append('title');
-    // ENTER + UPDATE
-    // both old and new elements
 
-    rect.merge(rect_enter)
-      .attr('height', yscale.bandwidth())
-      .attr('width', (d) => xscale(d.count))
-      .attr('y', (d, i) => yscale(d.club_name));
-      rect.merge(rect_enter).select('title').text((d) => d.club_name);
-      // EXIT
-      // elements that aren't associated with data
-      rect.exit().remove();
-  }
-})();
+};
 */
+"use strict";
 //# sourceMappingURL=treemap.js.map
