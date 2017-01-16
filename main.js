@@ -455,7 +455,7 @@ function lineChart(elementId) {
   function drawMinuteSelectors() {
     svg.selectAll('line.minute-slider').remove();
 
-    var lineMinuteMin = svg.append("line").attr("x1", xscale(minuteMin || 0)).attr("y1", 0).attr("x2", xscale(minuteMin || 0)).attr("y2", height).attr("class", "minute-slider min").style("stroke-width", 5).style("stroke", "red").style("fill", "none");
+    var lineMinuteMin = svg.append("line").attr("x1", xscale(minuteMin || 0)).attr("y1", 0).attr("x2", xscale(minuteMin || 0)).attr("y2", height).attr("class", "minute-slider min").style("stroke-width", 5).style("stroke", "blue").style("fill", "none");
 
     var lineMinuteMax = svg.append("line").attr("x1", xscale(minuteMax || 90)).attr("y1", 0).attr("x2", xscale(minuteMax || 90)).attr("y2", height).attr("class", "minute-slider max").style("stroke-width", 5).style("stroke", "red").style("fill", "none");
 
@@ -523,7 +523,7 @@ function lineChart(elementId) {
     g_yaxis.call(yaxis);
 
     // text label for the x axis
-    svg.append("text").attr("transform", "translate(" + getWidth() / 2 + " ," + (height + margin.top + margin.bottom) + ")").attr("class", "axis").style("text-anchor", "middle").text("Minute");
+    svg.append("text").attr("transform", "translate(" + getWidth() / 2 + " ," + (height + margin.top - 10) + ")").attr("class", "axis").style("text-anchor", "middle").text("Minute");
 
     var rect = g.selectAll('circle').data(goals, function (d) {
       return d.count;

@@ -65,7 +65,7 @@ function lineChart(elementId) {
     .attr("y2", height)
     .attr("class", "minute-slider min")
     .style("stroke-width", 5)
-    .style("stroke", "red")
+    .style("stroke", "blue")
     .style("fill", "none");
 
     let lineMinuteMax = svg.append("line")
@@ -144,7 +144,7 @@ d3.selectAll("line.minute-slider").call(d3.drag().on("start", started));
     svg.append("text")             
         .attr("transform",
               "translate(" + (getWidth()/2) + " ," + 
-                             (height+margin.top+margin.bottom) + ")")
+                             (height+margin.top - 10) + ")")
         .attr("class", "axis")
         .style("text-anchor", "middle")
         .text("Minute");

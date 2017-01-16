@@ -4,6 +4,16 @@ body {
 
 #goals-cards-per-minute {
   width: 100%;
+  position: fixed;
+  top: 0;
+  background: rgba(200, 200, 200, 0.8);
+  border-bottom: 2px solid black;
+}
+#goals-cards-per-minute svg {
+  margin-top: -40px;
+}
+#goals-cards-per-minute h2 {
+  margin-top: 30px;
 }
 
 .half-width {
@@ -16,6 +26,10 @@ h2 {
   text-align: center;
   font-size: 14pt;
   font-weight: 400;
+}
+
+#goal-bar-chart, #card-bar-chart {
+  margin-top: 324px;
 }
 
 #goal-club-bar-chart, #card-club-bar-chart {
