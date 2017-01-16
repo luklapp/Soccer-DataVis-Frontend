@@ -10,7 +10,8 @@ Um das Frontend des Prototypen zu builden, bitte folgende Befehle ausführen:
 git clone git@github.com:luklapp/Soccer-DataVis-Frontend.git
 cd Soccer-DataVis-Frontend
 npm install && bower install
-grunt``` 
+grunt
+``` 
 
 Für das Backend: 
 
@@ -18,7 +19,8 @@ Für das Backend:
 git@github.com:luklapp/Soccer-DataVis.git
 cd Soccer-DataVis
 npm install
-nodemon app.js``` 
+nodemon app.js
+``` 
 
 Anschließend kann die `index.html` aus dem Frontend-Ordner aufgerufen werden. 
 
