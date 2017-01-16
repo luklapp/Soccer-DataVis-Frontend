@@ -1,4 +1,4 @@
-function scatterPlot(elementId) {
+function scatterPlot(config) {
 
   const margin = {top: 40, bottom: 10, left: 120, right: 20};
   const padding = {top: 0, bottom: 0, left: 50, right: 50};
@@ -6,7 +6,7 @@ function scatterPlot(elementId) {
   const height = 300 - margin.top - margin.bottom;
   
   // Creates sources <svg> element
-  const svg = d3.select(elementId).append('svg')
+  const svg = d3.select(config.element).append('svg')
               .attr('width', '100%')
               .attr('height', height+margin.top+margin.bottom)
               .attr('viewbox', '0 0 100 100')
@@ -32,7 +32,7 @@ function scatterPlot(elementId) {
   });
 
   function getWidth() {
-    return $(elementId).width() - padding.left - padding.right;
+    return $(config.element).width() - padding.left - padding.right;
   }
 
   // Scales setup
@@ -54,17 +54,17 @@ function scatterPlot(elementId) {
     // Remove all points and paths from the chart (update on resize)
     svg.selectAll("text.axis").remove();
 
-    let minCards = d3.min(new_data, (o) => o.avgCards);
-    let minGoals = d3.min(new_data, (o) => o.avgGoals);
-    let maxCards = d3.max(new_data, (o) => o.avgCards);
-    let maxGoals = d3.max(new_data, (o) => o.avgGoals);
+    let minX = d3.min(new_data, (o) => o.x);
+    let maxX = d3.max(new_data, (o) => o.x);
+    let minY = d3.min(new_data, (o) => o.y);
+    let maxY = d3.max(new_data, (o) => o.y);
 
     // Update width (responsive)
     xscale.range([0, getWidth()]);
 
     if(!initialized) {
-      xscale.domain([0, maxCards]);
-      yscale.domain([0, maxGoals]);
+      xscale.domain([0, maxX]);
+      yscale.domain([0, maxY]);
       initialized = true;
     }
 
@@ -82,7 +82,7 @@ function scatterPlot(elementId) {
         .text("Cards per Match");
     
 
-    const points = g.selectAll('circle').data(new_data, (d) => d.clubId);
+    const points = g.selectAll('circle').data(new_data, (d) => d.id);
 
     // ENTER
     // new elements
@@ -95,12 +95,12 @@ function scatterPlot(elementId) {
     // both old and new elements
 
     points.merge(rect_enter).transition()
-      .attr('cx', (d, i) => xscale(d.avgCards || 0))
-      .attr('cy', (d, i) => yscale(d.avgGoals || 0))
+      .attr('cx', (d, i) => xscale(d.x || 0))
+      .attr('cy', (d, i) => yscale(d.y || 0))
       .attr("r", `${radius}px`)
       .attr("fill", "green");
 
-      points.merge(rect_enter).select('title').text((d) => `${d.club_name}`);
+      points.merge(rect_enter).select('title').text((d) => config.getTemplateString(d));
 
       // EXIT
       // elements that aren't associated with data
@@ -109,7 +109,7 @@ function scatterPlot(elementId) {
 
   function getData() {
 
-    let url = `http://localhost:7878/soccer/avgGoalsCards?minuteMin=${minuteMin}&minuteMax=${minuteMax}`;
+    let url = `http://localhost:7878/${config.api}?minuteMin=${minuteMin}&minuteMax=${minuteMax}`;
 
     d3.json(url, function(json) {
       data = json;
