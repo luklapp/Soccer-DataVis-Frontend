@@ -9,7 +9,7 @@
 
 <body>
     <div id="goals-cards-per-minute"></div>
-    <div id="treemap"></div>
+    <div id="goal-treemap"></div>
     <div id="goal-bar-chart" class="half-width"></div>
     <div id="card-bar-chart" class="half-width"></div>
     <div id="scatter-plot"></div>
@@ -22,9 +22,10 @@
             console.log(ev, obj);
         });
 
+        //goalTreemap('#goal-treemap');
         lineChart('#goals-cards-per-minute');
-        goalBarChart('#goal-bar-chart');
-        cardBarChart('#card-bar-chart');
+        barChart('#goal-bar-chart', 'goalsByCountry');
+        stackedBarChart('#card-bar-chart', 'cardsByCountry');
         scatterPlot({
             element: '#scatter-plot',
             getTemplateString: (d) => `<b>${d.club_name}</b><p>AVG Goals: ${d.y}<br>AVG Cards: ${d.x}</p>`,

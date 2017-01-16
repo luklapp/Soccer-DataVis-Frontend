@@ -1,5 +1,4 @@
-console.log('GoalBarChart');
-function goalBarChart(selector) {
+function barChart(selector, request) {
   let dataOptions = {min: 1, max: 90, limit: 20};
   const margin = {top: 40, bottom: 120, left: 30, right: 20};
   const width = 950 - margin.left - margin.right;
@@ -49,10 +48,9 @@ function goalBarChart(selector) {
     var maxMinute = options.max || 90;
     var limit = options.limit || 'null';
 
-    d3.json('http://localhost:7878/soccer/goalsByCountry?minuteMin=' + minMinute + '&minuteMax=' + maxMinute + '&limit=' + limit, function(json) {
+    d3.json('http://localhost:7878/soccer/' + request + '?minuteMin=' + minMinute + '&minuteMax=' + maxMinute + '&limit=' + limit, function(data) {
       svg.selectAll("g text, g .axis, .bar").remove();
 
-      let data = json.goals;
       console.log('goals', data);
       draw(data);
 
