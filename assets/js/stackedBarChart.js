@@ -89,14 +89,15 @@ function stackedBarChart(selector, request) {
         .attr("dy", "0.71em")
         .attr("text-anchor", "end")
         .text("Count");
+
     function getHeight(data, i) {
       let h = 0;
       for (let j = 1; j <= i; j++) {
         h += data[cardNr[j]];
       }
-      console.log(h);
       return h;
     }
+
     const rect = g.selectAll('.bar').data(data, (d) => d.count_name);
     let rect_enter;
     for (let c = 1; c <= 3; c++) {

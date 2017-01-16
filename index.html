@@ -23,14 +23,14 @@
         });
 
         //goalTreemap('#goal-treemap');
-        //lineChart('#goals-cards-per-minute');
+        lineChart('#goals-cards-per-minute');
         barChart('#goal-bar-chart', 'goalsByCountry');
         stackedBarChart('#card-bar-chart', 'cardsByCountry');
-        /*scatterPlot({
+        scatterPlot({
             element: '#scatter-plot',
             getTemplateString: (d) => `<b>${d.club_name}</b><p>AVG Goals: ${d.y}<br>AVG Cards: ${d.x}</p>`,
             api: 'soccer/avgGoalsCards'
-        });*/
+        });
     </script>
 </body>
 </html>
