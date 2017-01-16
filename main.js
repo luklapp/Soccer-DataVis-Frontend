@@ -480,13 +480,13 @@ var ObserverManager = new ObserverSubject();
 function scatterPlot(config) {
 
   var margin = { top: 40, bottom: 10, left: 120, right: 20 };
-  var padding = { top: 0, bottom: 0, left: 50, right: 50 };
+  var padding = { top: 0, bottom: 20, left: 50, right: 50 };
   var width = 800 - margin.left - margin.right;
   var height = 300 - margin.top - margin.bottom;
   var tooltip = d3.tooltip();
 
   // Creates sources <svg> element
-  var svg = d3.select(config.element).append('svg').attr('width', '100%').attr('height', height + margin.top + margin.bottom).attr('viewbox', '0 0 100 100').attr('preserveAspectRatio', 'none').style('padding-left', padding.left).style('padding-right', padding.right);
+  var svg = d3.select(config.element).append('svg').attr('width', '100%').attr('height', height + margin.top + margin.bottom).attr('viewbox', '0 0 100 100').attr('preserveAspectRatio', 'none').style('padding-left', padding.left).style('padding-right', padding.right).style('padding-bottom', padding.bottom);
 
   // Group used to enforce margin
   var g = svg.append('g').attr('transform', 'scale(1, 1)').attr('class', 'points');

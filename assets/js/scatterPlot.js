@@ -1,7 +1,7 @@
 function scatterPlot(config) {
 
   const margin = {top: 40, bottom: 10, left: 120, right: 20};
-  const padding = {top: 0, bottom: 0, left: 50, right: 50};
+  const padding = {top: 0, bottom: 20, left: 50, right: 50};
   const width = 800 - margin.left - margin.right;
   const height = 300 - margin.top - margin.bottom;
   const tooltip = d3.tooltip();
@@ -13,7 +13,8 @@ function scatterPlot(config) {
               .attr('viewbox', '0 0 100 100')
               .attr('preserveAspectRatio', 'none')
               .style('padding-left', padding.left)
-              .style('padding-right', padding.right);
+              .style('padding-right', padding.right)
+              .style('padding-bottom', padding.bottom);
 
   // Group used to enforce margin
   const g = svg.append('g')
