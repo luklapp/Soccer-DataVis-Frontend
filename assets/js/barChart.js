@@ -1,5 +1,5 @@
 function barChart(selector, request) {
-  let dataOptions = {min: 1, max: 90, limit: 20};
+  let dataOptions = {min: 1, max: 90, limit: 10};
   const margin = {top: 40, bottom: 120, left: 30, right: 20};
   const width = 950 - margin.left - margin.right;
   const height = 400 - margin.top - margin.bottom;

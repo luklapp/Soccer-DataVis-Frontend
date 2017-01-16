@@ -1,4 +1,4 @@
-console.log('Treemap');
+/*console.log('Treemap');
 function goalTreemap(selector) {
   let dataOptions = {min: 1, max: 90, limit: 20};
   var width = 960,
@@ -53,3 +53,4 @@ function goalTreemap(selector) {
   };
 
 };
+*/

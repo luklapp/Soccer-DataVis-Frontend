@@ -1,6 +1,5 @@
-//wie bisher aber getrennte counts pro kartentyp, typen nacheinander hinzufügen
 function stackedBarChart(selector, request) {
-  let dataOptions = {min: 1, max: 90, limit: 20};
+  let dataOptions = {min: 1, max: 90, limit: 10};
   const margin = {top: 40, bottom: 120, left: 50, right: 20};
   const width = 950 - margin.left - margin.right;
   const height = 400 - margin.top - margin.bottom;
@@ -59,6 +58,8 @@ function stackedBarChart(selector, request) {
   };
 
   function draw(data) {
+    const cardNr = ['count', 'card1', 'card2', 'card3'];
+    const colors = ['grey', 'yellow', 'orange', 'red'];
     let maxValue = d3.max(data, function(d) { return d.count; });
 
     x.domain(data.map(function(d) { return d.count_name; }));
@@ -83,43 +84,53 @@ function stackedBarChart(selector, request) {
         .attr("dy", "0.71em")
         .attr("text-anchor", "end")
         .text("Count");
-
+    function getHeight(data, i) {
+      let h = 0;
+      for (let j = 1; j <= i; j++) {
+        h += data[cardNr[j]];
+      }
+      console.log(h);
+      return h;
+    }
     const rect = g.selectAll('.bar').data(data, (d) => d.count_name);
-    const rect_enter = rect.enter().append('rect')
-      .attr("class", "bar")
-      .attr("x", function(d) { return x(d.count_name); })
-      .attr("y", function(d) {
-         if(!initialized)
-            return height;
-          return y(d.count);
-      })
-      .attr("width", x.bandwidth())
-      .attr('height', function(d) {
-         if(!initialized)
-            return 0;
-          return height - y(d.count);
-      })
-      .on("mouseover", function(d) {
-        d3.select(this).style("fill", "green");
-      })
-      .on("mouseout", function(d) {
-        d3.select(this).style("fill", function(d){
-          return colorScale(d.cr);
-        })
-      })
-      .style("fill", function(d){
-          return colorScale(d.cr);
-      });
-      rect_enter.append('title')
-        .text(function(d) { return `${d.count_name} - ${d.count}`; });
-
-    rect.merge(rect_enter)
-      .transition().duration(1000)
+    let rect_enter;
+    for (let c = 1; c <= 3; c++) {
+      rect_enter = rect.enter().append('rect')
+        .attr("class", "bar")
         .attr("x", function(d) { return x(d.count_name); })
-        .attr("y", function(d) { return y(d.count); })
-        .attr("height", function(d) { return height - y(d.count); });
+        .attr("y", function(d) {
+           if(!initialized)
+              return height;
+            return y(getHeight(d, c));
+        })
+        .attr("width", x.bandwidth())
+        .attr('height', function(d) {
+           if(!initialized)
+              return 0;
+            return height - y(d[cardNr[c]]);
+        })
+        .on("mouseover", function(d) {
+          d3.select(this).style("fill", "green");
+        })
+        .on("mouseout", function(d) {
+          d3.select(this).style("fill", function(d){
+            return colorScale(d.cr);
+          })
+        })
+        .style("fill", function(d){
+            return colors[c];
+        });
+        rect_enter.append('title')
+          .text(function(d) { return `${d.count_name} - ${d[cardNr[c]]}`; });
 
-    rect.exit().remove();
+      rect.merge(rect_enter)
+        .transition().duration(1000)
+          .attr("x", function(d) { return x(d.count_name); })
+          .attr("y", function(d) { return y(getHeight(d, c)); })
+          .attr("height", function(d) { return height - y(d[cardNr[c]]); });
+
+      rect.exit().remove();
+    }
   };
 };
 
