@@ -4,7 +4,7 @@ function stackedBarChart(selector, request, title, wid) {
   const padding = {top: 0, bottom: 0, left: 0, right: 0};
   const width = wid - margin.left - margin.right;
   const height = 400 - margin.top - margin.bottom;
-
+  const tooltip = d3.tooltip();
 
   let initialized = false;
   // Creates sources <svg> element
@@ -66,6 +66,7 @@ function stackedBarChart(selector, request, title, wid) {
 
   function draw(data) {
     const cardNr = ['count', 'card1', 'card2', 'card3'];
+    const cardText = ['', 'gelbe Karten', 'gelb-rote Karten', 'rote Karten'];
     const colors = ['grey', 'yellow', 'orange', 'red'];
     let maxValue = d3.max(data, function(d) { return d.count; });
 
@@ -121,17 +122,19 @@ function stackedBarChart(selector, request, title, wid) {
           d3.select(this).style("fill", function(d){
             return colors[0];
           })
+          tooltip.show(d3.event);
         })
         .on("mouseout", function(d) {
           d3.select(this).style("fill", function(d){
             return colors[c];
           })
+          tooltip.hide();
         })
         .style("fill", function(d){
             return colors[c];
         });
         rect_enter.append('title')
-          .text(function(d) { return `${d.name} - ${d[cardNr[c]]}`; });
+          .text(function(d) { return `${d.name} - ${d[cardNr[c]]} ${cardText[c]}`; });
 
       rect.merge(rect_enter)
         .transition().duration(1000)

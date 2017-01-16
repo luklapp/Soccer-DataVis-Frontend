@@ -784,6 +784,7 @@ function stackedBarChart(selector, request, title, wid) {
   var padding = { top: 0, bottom: 0, left: 0, right: 0 };
   var width = wid - margin.left - margin.right;
   var height = 400 - margin.top - margin.bottom;
+  var tooltip = d3.tooltip();
 
   var initialized = false;
   // Creates sources <svg> element
@@ -834,6 +835,7 @@ function stackedBarChart(selector, request, title, wid) {
 
   function draw(data) {
     var cardNr = ['count', 'card1', 'card2', 'card3'];
+    var cardText = ['', 'gelbe Karten', 'gelb-rote Karten', 'rote Karten'];
     var colors = ['grey', 'yellow', 'orange', 'red'];
     var maxValue = d3.max(data, function (d) {
       return d.count;
@@ -875,15 +877,17 @@ function stackedBarChart(selector, request, title, wid) {
         d3.select(this).style("fill", function (d) {
           return colors[0];
         });
+        tooltip.show(d3.event);
       }).on("mouseout", function (d) {
         d3.select(this).style("fill", function (d) {
           return colors[c];
         });
+        tooltip.hide();
       }).style("fill", function (d) {
         return colors[c];
       });
       rect_enter.append('title').text(function (d) {
-        return d.name + ' - ' + d[cardNr[c]];
+        return d.name + ' - ' + d[cardNr[c]] + ' ' + cardText[c];
       });
 
       rect.merge(rect_enter).transition().duration(1000).attr("x", function (d) {
