@@ -100,8 +100,10 @@ function started() {
     }
 
     if(circle.classed("min")) {
+      if(minuteNew >= minuteMax) minuteNew = minuteMax - 1;
       minuteMin = minuteNew;
     } else {
+      if(minuteNew <= minuteMin) minuteNew = minuteMin + 1;
       minuteMax = minuteNew;
     }
 
