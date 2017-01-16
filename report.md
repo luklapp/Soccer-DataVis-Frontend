@@ -51,4 +51,10 @@ In [diesem Video](https://github.com/luklapp/Soccer-DataVis-Frontend/blob/master
 
 ## Insight
 
+* Nach kurzer Einarbeitungszeit sind wir mithilfe des [D3 Tutorials](https://github.com/sgratzl/d3tutorial) gut zurechtgekommen
+* Drag&Drop (Minuten-Slider) war einfacher als befürchtet, nachdem wir d3.drag() entdeckt haben
+* Insgesamt sind wir zufrieden mit der Funktionalität. Vor allem die Vergleichbarkeit zwischen Vereinen verschiedener Länder halten wir für sehr gelungen
+* Das Design ist vielleicht verbesserungswürdig, aber form follows function :P
+* Nicht gelungen ist uns die Animation des stacked bar chart
+
 **TODO**
