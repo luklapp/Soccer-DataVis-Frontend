@@ -24,7 +24,7 @@ module.exports = function (grunt) {
             'tmp/extensions/*.js',
             'tmp/js/*.js'
           ]
-        }
+        },
       }
     },
     babel: {
@@ -77,7 +77,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-babel');
 
-  grunt.registerTask('js', ['babel', 'uglify']);
-  grunt.registerTask('default', ['sass', 'js', 'watch']);
+  grunt.registerTask('js', ['babel']);
+  grunt.registerTask('default', ['sass', 'js', 'concat', 'watch']);
 
 };
