@@ -37,7 +37,7 @@ Hier wird deutlich, dass die meisten Datensätze von Spielen aus deutschen Ligen
 
 Wir haben uns das erhaltene Feedback zu Herzen genommen und die Kartenansicht verworfen, da sie keine wirkliche Aussagekraft haben.
 
-Das Layout haben wir auf maximal zwei Visualisierungen nebeneinander geändert, da sie sonst zu klein und schwerer zu lesen wären.
+Das Layout haben wir auf maximal zwei Visualisierungen nebeneinander geändert, da sie sonst zu klein und schwerer zu lesen wären. Details zeigen wir mittels Tooltips an.
 
 ## Prototype Interaction
 
@@ -65,11 +65,14 @@ In [diesem Video](https://github.com/luklapp/Soccer-DataVis-Frontend/blob/master
 
 ## Insight
 
+Die Daten für die Visualisierungen stellen wir über [eine Api](https://github.com/luklapp/Soccer-DataVis-Frontend) bereit, die wir ebenfalls in Node implementiert haben. Sie greift dazu auf eine Mysql-Datenbank zu und liefert die Daten als JSON zurück.
 
-* Nach kurzer Einarbeitungszeit sind wir mithilfe des [D3 Tutorials](https://github.com/sgratzl/d3tutorial) gut zurechtgekommen
-* Drag&Drop (Minuten-Slider) war einfacher als befürchtet, nachdem wir d3.drag() entdeckt haben
-* Insgesamt sind wir zufrieden mit der Funktionalität. Vor allem die Vergleichbarkeit zwischen Vereinen verschiedener Länder halten wir für sehr gelungen
-* Das Design ist vielleicht verbesserungswürdig, aber form follows function :P
-* Nicht gelungen ist uns die Animation des stacked bar chart
+Im Frontend haben wir uns für einen Buildprozess mittels Grunt, Babel, Uglify und SCSS entschieden.
 
-**TODO**
+
+Nach kurzer Einarbeitungszeit sind wir mithilfe des [D3 Tutorials](https://github.com/sgratzl/d3tutorial) gut zurechtgekommen. Entgegen unserer Beführchtungen war das Umsetzen von Drag&Drop (Minuten-Slider) mit d3.drag() recht einfach.
+Insgesamt sind wir zufrieden mit der Funktionalität. Vor allem die Vergleichbarkeit zwischen Vereinen verschiedener Länder halten wir für sehr gelungen.
+
+Unser Fokus lag eindeutig auf den Visualisierungen und die Verknüpfung dieser. Daher haben wir uns beim Design des Dashboards auf das Wesentliche beschränkt, *à la form follows function*.
+
+Bei dem Stacked Barcharts hatten wir das Problem, dass die Animation bei Updates nicht funktioniert, konnten den Fehler jedoch nicht finden.
