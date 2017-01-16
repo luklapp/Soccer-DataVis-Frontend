@@ -32,15 +32,51 @@
 
         //goalTreemap('#goal-treemap');
         lineChart('#goals-cards-per-minute');
-        barChart('#goal-bar-chart', 'goalsByCountry', 'Goals by Country', 700, 400);
+        barChart({
+            selector: '#goal-bar-chart',
+            request: 'goalsByCountry',
+            title: 'Goals by Country',
+            wid: 700,
+            heig: 400,
+            mousedown: selectCountry,
+            preventHighlighting: true
+        });
         stackedBarChart('#card-bar-chart', 'cardsByCountry', 'Cards by Country', 700);
         scatterPlot({
             element: '#scatter-plot',
             getTemplateString: (d) => `<b>${d.club_name}</b><p>AVG Goals: ${d.y}<br>AVG Cards: ${d.x}</p>`,
-            api: 'soccer/avgGoalsCards'
+            api: 'soccer/avgGoalsCards',
+            mousedown: selectClub
         });
-        barChart('#goal-club-bar-chart .svg', 'goalsByClub', '', 3500, 500);
-        barChart('#card-club-bar-chart .svg', 'cardsByClub', '', 4000, 500);
+        barChart({
+            selector: '#goal-club-bar-chart .svg',
+            request: 'goalsByClub',
+            title: '',
+            wid: 3500,
+            heig: 500,
+            mousedown: selectClub
+        });
+        barChart({
+            selector: '#card-club-bar-chart .svg',
+            request: 'cardsByClub',
+            title: '',
+            wid: 4000,
+            heig: 500,
+            mousedown: selectClub
+        });
+
+        function selectClub(d) {
+            window.country = undefined;
+            window.club = window.club == d.id ? undefined : d.id;
+            $(document).trigger('soccer-club-changed');
+        }
+
+        function selectCountry(d) {
+            window.club = undefined;
+            window.country = window.country == d.id ? undefined : d.id;
+            $(document).trigger('soccer-country-changed');
+        }
+
     </script>
 </body>
-</
+</html>

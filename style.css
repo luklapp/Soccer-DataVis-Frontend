@@ -33,6 +33,10 @@ h2 {
   padding-right: 800px !important;
 }
 
+#goal-bar-chart rect:hover {
+  cursor: pointer;
+}
+
 svg.dragging {
   cursor: ew-resize;
 }
@@ -55,10 +59,12 @@ svg circle, svg rect, svg line {
   text-align: center;
   border-radius: 4px;
   opacity: 0.8;
-  transition: opacity 0.5s;
+  transition: visibility 0s, opacity 0.5s linear;
+  visibility: visible;
 }
 .tooltip.hidden {
   opacity: 0;
+  visibility: hidden;
 }
 .tooltip p {
   margin-bottom: 0px;

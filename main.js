@@ -43,15 +43,21 @@ d3.tooltip = function () {
 
 'use strict';
 
-function barChart(selector, request, title, wid, heig) {
+function barChart(config) {
   var dataOptions = { min: 1, max: 90, limit: 10 };
   var margin = { top: 40, bottom: 120, left: 50, right: 20 };
   var padding = { top: 0, bottom: 0, left: -120, right: 0 };
-  var width = wid - margin.left - margin.right;
-  var height = heig - margin.top - margin.bottom;
+  var width = config.wid - margin.left - margin.right;
+  var height = config.heig - margin.top - margin.bottom;
+  var tooltip = d3.tooltip();
+
+  $(document).on('soccer-country-changed soccer-club-changed', function () {
+    draw();
+  });
+
   var initialized = false;
   // Creates sources <svg> element
-  var svg = d3.select(selector).append('svg').attr('width', wid).attr('height', height + margin.top + margin.bottom).attr('viewbox', '0 0 100 100').attr('preserveAspectRatio', 'none').style('padding-left', padding.left).style('padding-right', padding.right);
+  var svg = d3.select(config.selector).append('svg').attr('width', config.wid).attr('height', height + margin.top + margin.bottom).attr('viewbox', '0 0 100 100').attr('preserveAspectRatio', 'none').style('padding-left', padding.left).style('padding-right', padding.right);
   // Group used to enforce margin
   var x = d3.scaleBand().rangeRound([0, width]).padding(0.5),
       y = d3.scaleLinear().rangeRound([0, height]);
@@ -63,7 +69,7 @@ function barChart(selector, request, title, wid, heig) {
   var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   //Title
-  svg.append("text").attr("x", width / 2).attr("y", margin.top / 2).attr("text-anchor", "middle").style("font-size", "16px").text(title);
+  svg.append("text").attr("x", width / 2).attr("y", margin.top / 2).attr("text-anchor", "middle").style("font-size", "16px").text(config.title);
 
   requestData(dataOptions);
 
@@ -86,22 +92,31 @@ function barChart(selector, request, title, wid, heig) {
     var maxMinute = options.max || 90;
     var limit = options.limit || 'null';
 
-    d3.json('http://localhost:7878/soccer/' + request + '?minuteMin=' + minMinute + '&minuteMax=' + maxMinute + '&limit=' + limit, function (data) {
-      svg.selectAll("g text, g .axis").remove();
+    d3.json('http://localhost:7878/soccer/' + config.request + '?minuteMin=' + minMinute + '&minuteMax=' + maxMinute + '&limit=' + limit, function (data) {
 
-      console.log(request, data);
+      console.log(config.request, data);
       draw(data);
 
       initialized = true;
     });
   };
 
-  function draw(data) {
-    var maxValue = d3.max(data, function (d) {
+  function draw(new_data) {
+
+    // Just redraw if no new data is given
+    if (!new_data) {
+      new_data = data;
+    }
+
+    data = new_data;
+
+    svg.selectAll("g.axis text, g.tick text, g .axis").remove();
+
+    var maxValue = d3.max(new_data, function (d) {
       return d.count;
     });
 
-    x.domain(data.map(function (d) {
+    x.domain(new_data.map(function (d) {
       return d.name;
     }));
     if (!initialized) {
@@ -111,7 +126,7 @@ function barChart(selector, request, title, wid, heig) {
 
     g.append("g").attr("class", "axis axis--y").call(d3.axisLeft(y).ticks(10, "s")).append("text").attr("y", 6).attr("dy", "0.71em").attr("text-anchor", "end").text("Count");
 
-    var rect = g.selectAll('.bar').data(data, function (d) {
+    var rect = g.selectAll('.bar').data(new_data, function (d) {
       return d.name;
     });
     var rect_enter = rect.enter().append('rect').attr("class", "bar").attr("x", function (d) {
@@ -124,21 +139,148 @@ function barChart(selector, request, title, wid, heig) {
       return height - y(d.count);
     }).on("mouseover", function (d) {
       d3.select(this).style("fill", "grey");
+      tooltip.show(d3.event);
     }).on("mouseout", function (d) {
       d3.select(this).style("fill", function (d) {
         //return colorScale(d.cr);"#FF8A01"
         return "#FF8A01";
       });
+      tooltip.hide();
+    }).on("mousedown", function (d) {
+      if (config.mousedown) {
+        config.mousedown(d);
+      }
     }).style("fill", function (d) {
       //return colorScale(d.cr);
       return "#FF8A01";
     });
-    rect_enter.append('title').text(function (d) {
-      return d.name + ' - ' + d.count;
-    });
+
+    rect_enter.append('text');
 
     rect.merge(rect_enter).transition().duration(1000).attr("x", function (d) {
       return x(d.name);
+    }).attr("y", function (d) {
+      return y(d.count);
+    }).attr("height", function (d) {
+      return height - y(d.count);
+    }).style("opacity", function (p) {
+
+      if (!config.preventHighlighting) {
+        if (window.country) {
+          return window.country == p.countryId ? '' : 0.1;
+        } else if (window.club) {
+          return window.club == p.id ? '' : 0.1;
+        }
+      }
+    });
+
+    rect.merge(rect_enter).select('text').text(function (d) {
+      return d.name + ' - ' + d.count;
+    });
+
+    rect.exit().remove();
+  };
+};
+//# sourceMappingURL=barChart.js.map
+
+'use strict';
+
+//wie bisher aber getrennte counts pro kartentyp, typen nacheinander hinzufügen
+console.log('CardBarChart');
+function cardBarChart(selector) {
+  var dataOptions = { min: 1, max: 90, limit: 20 };
+  var margin = { top: 40, bottom: 120, left: 50, right: 20 };
+  var width = 950 - margin.left - margin.right;
+  var height = 400 - margin.top - margin.bottom;
+  var initialized = false;
+  // Creates sources <svg> element
+  var svg = d3.select(selector).append('svg').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom);
+  // Group used to enforce margin
+  var x = d3.scaleBand().rangeRound([0, width]).padding(0.5),
+      y = d3.scaleLinear().rangeRound([0, height]);
+
+  var max = 20,
+      data = [];
+  var colorScale = d3.scaleLinear().domain([0, max]).range(["#FF8A01", "#019DE2"]);
+
+  var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  //Title
+  svg.append("text").attr("x", width / 2).attr("y", margin.top / 2).attr("text-anchor", "middle").style("font-size", "16px").text("Cards per Country");
+
+  requestData(dataOptions);
+
+  ObserverManager.register(function (ev, obj) {
+    if (ev === 'minuteChanged') {
+      for (var o in dataOptions) {
+        console.log(o);
+        if (obj[o]) {
+          if (dataOptions[o] !== obj[o]) {
+            dataOptions[o] = obj[o];
+          }
+        }
+      }
+      requestData(dataOptions);
+    }
+  });
+
+  function requestData(options) {
+    var minMinute = options.min || 1;
+    var maxMinute = options.max || 90;
+    var limit = options.limit || 'null';
+
+    d3.json('http://localhost:7878/soccer/cardsByCountry?minuteMin=' + minMinute + '&minuteMax=' + maxMinute + '&limit=' + limit, function (json) {
+      svg.selectAll("g text, g .axis, .bar").remove();
+
+      var data = json.cards;
+      console.log('cards', data);
+      draw(data);
+
+      initialized = true;
+    });
+  };
+
+  function draw(data) {
+    var maxValue = d3.max(data, function (d) {
+      return d.count;
+    });
+
+    x.domain(data.map(function (d) {
+      return d.count_name;
+    }));
+    if (!initialized || true) {
+      y.domain([maxValue, 0]);
+    }
+    g.append("g").attr("class", "axis axis--x").attr("transform", "translate(0," + height + ")").call(d3.axisBottom(x)).selectAll("text").style("text-anchor", "end").attr("dx", "-.8em").attr("dy", ".15em").attr("transform", "rotate(-65)");;
+
+    g.append("g").attr("class", "axis axis--y").call(d3.axisLeft(y).ticks(10, "s")).append("text").attr("y", 6).attr("dy", "0.71em").attr("text-anchor", "end").text("Count");
+
+    var rect = g.selectAll('.bar').data(data, function (d) {
+      return d.count_name;
+    });
+    var rect_enter = rect.enter().append('rect').attr("class", "bar").attr("x", function (d) {
+      return x(d.count_name);
+    }).attr("y", function (d) {
+      if (!initialized) return height;
+      return y(d.count);
+    }).attr("width", x.bandwidth()).attr('height', function (d) {
+      if (!initialized) return 0;
+      return height - y(d.count);
+    }).on("mouseover", function (d) {
+      d3.select(this).style("fill", "green");
+    }).on("mouseout", function (d) {
+      d3.select(this).style("fill", function (d) {
+        return colorScale(d.cr);
+      });
+    }).style("fill", function (d) {
+      return colorScale(d.cr);
+    });
+    rect_enter.append('title').text(function (d) {
+      return d.count_name + ' - ' + d.count;
+    });
+
+    rect.merge(rect_enter).transition().duration(1000).attr("x", function (d) {
+      return x(d.count_name);
     }).attr("y", function (d) {
       return y(d.count);
     }).attr("height", function (d) {
@@ -148,7 +290,115 @@ function barChart(selector, request, title, wid, heig) {
     rect.exit().remove();
   };
 };
-//# sourceMappingURL=barChart.js.map
+//# sourceMappingURL=cardBarChart.js.map
+
+'use strict';
+
+console.log('GoalBarChart');
+function goalBarChart(selector) {
+  var dataOptions = { min: 1, max: 90, limit: 20 };
+  var margin = { top: 40, bottom: 120, left: 30, right: 20 };
+  var width = 950 - margin.left - margin.right;
+  var height = 400 - margin.top - margin.bottom;
+  var initialized = false;
+  // Creates sources <svg> element
+  var svg = d3.select(selector).append('svg').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom);
+  // Group used to enforce margin
+  var x = d3.scaleBand().rangeRound([0, width]).padding(0.5),
+      y = d3.scaleLinear().rangeRound([0, height]);
+
+  var max = 20,
+      data = [];
+  var colorScale = d3.scaleLinear().domain([0, max]).range(["#FF8A01", "#019DE2"]);
+
+  var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  //Title
+  svg.append("text").attr("x", width / 2).attr("y", margin.top / 2).attr("text-anchor", "middle").style("font-size", "16px").text("Goals per Country");
+
+  requestData(dataOptions);
+
+  ObserverManager.register(function (ev, obj) {
+    if (ev === 'minuteChanged') {
+      for (var o in dataOptions) {
+        console.log(o);
+        if (obj[o]) {
+          if (dataOptions[o] !== obj[o]) {
+            dataOptions[o] = obj[o];
+          }
+        }
+      }
+      requestData(dataOptions);
+    }
+  });
+
+  function requestData(options) {
+    var minMinute = options.min || 1;
+    var maxMinute = options.max || 90;
+    var limit = options.limit || 'null';
+
+    d3.json('http://localhost:7878/soccer/goalsByCountry?minuteMin=' + minMinute + '&minuteMax=' + maxMinute + '&limit=' + limit, function (json) {
+      svg.selectAll("g text, g .axis, .bar").remove();
+
+      var data = json.goals;
+      console.log('goals', data);
+      draw(data);
+
+      initialized = true;
+    });
+  };
+
+  function draw(data) {
+    var maxValue = d3.max(data, function (d) {
+      return d.count;
+    });
+
+    x.domain(data.map(function (d) {
+      return d.count_name;
+    }));
+    if (!initialized || true) {
+      y.domain([maxValue, 0]);
+    }
+    g.append("g").attr("class", "axis axis--x").attr("transform", "translate(0," + height + ")").call(d3.axisBottom(x)).selectAll("text").style("text-anchor", "end").attr("dx", "-.8em").attr("dy", ".15em").attr("transform", "rotate(-65)");;
+
+    g.append("g").attr("class", "axis axis--y").call(d3.axisLeft(y).ticks(10, "s")).append("text").attr("y", 6).attr("dy", "0.71em").attr("text-anchor", "end").text("Count");
+
+    var rect = g.selectAll('.bar').data(data, function (d) {
+      return d.count_name;
+    });
+    var rect_enter = rect.enter().append('rect').attr("class", "bar").attr("x", function (d) {
+      return x(d.count_name);
+    }).attr("y", function (d) {
+      if (!initialized) return height;
+      return y(d.count);
+    }).attr("width", x.bandwidth()).attr('height', function (d) {
+      if (!initialized) return 0;
+      return height - y(d.count);
+    }).on("mouseover", function (d) {
+      d3.select(this).style("fill", "green");
+    }).on("mouseout", function (d) {
+      d3.select(this).style("fill", function (d) {
+        return colorScale(d.cr);
+      });
+    }).style("fill", function (d) {
+      return colorScale(d.cr);
+    });
+    rect_enter.append('title').text(function (d) {
+      return d.count_name + ' - ' + d.count;
+    });
+
+    rect.merge(rect_enter).transition().duration(1000).attr("x", function (d) {
+      return x(d.count_name);
+    }).attr("y", function (d) {
+      return y(d.count);
+    }).attr("height", function (d) {
+      return height - y(d.count);
+    });
+
+    rect.exit().remove();
+  };
+};
+//# sourceMappingURL=goalBarChart.js.map
 
 'use strict';
 
@@ -377,6 +627,10 @@ function scatterPlot(config) {
   var height = 300 - margin.top - margin.bottom;
   var tooltip = d3.tooltip();
 
+  $(document).on('soccer-country-changed soccer-club-changed', function () {
+    update();
+  });
+
   // Creates sources <svg> element
   var svg = d3.select(config.element).append('svg').attr('width', '100%').attr('height', height + margin.top + margin.bottom).attr('viewbox', '0 0 100 100').attr('preserveAspectRatio', 'none').style('padding-left', padding.left).style('padding-right', padding.right).style('padding-bottom', padding.bottom);
 
@@ -414,6 +668,11 @@ function scatterPlot(config) {
   g_yaxis.call(yaxis);
 
   function update(new_data) {
+
+    // Just redraw if no new data is given
+    if (!new_data) {
+      new_data = data;
+    }
 
     // Remove all points and paths from the chart (update on resize)
     svg.selectAll("text.axis").remove();
@@ -458,8 +717,12 @@ function scatterPlot(config) {
       d3.select(this).style("opacity", "1");
       tooltip.show(d3.event);
     }).on('mouseout', function () {
-      svg.selectAll('circle').style("opacity", "");
+      update();
       tooltip.hide();
+    }).on('mousedown', function (p) {
+      if (config.mousedown) {
+        config.mousedown(p);
+      }
     });
 
     rect_enter.append('text');
@@ -471,7 +734,13 @@ function scatterPlot(config) {
       return xscale(d.x || 0);
     }).attr('cy', function (d, i) {
       return yscale(d.y || 0);
-    }).attr("r", radius + 'px').attr("fill", "green");
+    }).attr("r", radius + 'px').attr("fill", "green").style("opacity", function (p) {
+      if (window.country) {
+        return window.country == p.country ? '' : 0.1;
+      } else if (window.club) {
+        return window.club == p.id ? '' : 0.1;
+      }
+    });
 
     points.merge(rect_enter).select('text').text(function (d) {
       return config.getTemplateString(d);
@@ -486,9 +755,9 @@ function scatterPlot(config) {
 
     var url = 'http://localhost:7878/' + config.api + '?minuteMin=' + minuteMin + '&minuteMax=' + minuteMax;
 
-    if (window.country) {
-      url += '&country=' + window.country;
-    }
+    //if(window.country) {
+    //  url += `&country=${window.country}`
+    //}
 
     d3.json(url, function (json) {
       data = json;

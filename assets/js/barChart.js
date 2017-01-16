@@ -1,13 +1,19 @@
-function barChart(selector, request, title, wid, heig) {
+function barChart(config) {
   let dataOptions = {min: 1, max: 90, limit: 10};
   const margin = {top: 40, bottom: 120, left: 50, right: 20};
   const padding = {top: 0, bottom: 0, left: -120, right: 0};
-  const width = wid - margin.left - margin.right;
-  const height = heig - margin.top - margin.bottom;
+  const width = config.wid - margin.left - margin.right;
+  const height = config.heig - margin.top - margin.bottom;
+  const tooltip = d3.tooltip();
+
+  $(document).on('soccer-country-changed soccer-club-changed', function() {
+    draw();
+  });
+
   let initialized = false;
   // Creates sources <svg> element
-  const svg = d3.select(selector).append('svg')
-              .attr('width', wid)
+  const svg = d3.select(config.selector).append('svg')
+              .attr('width', config.wid)
               .attr('height', height+margin.top+margin.bottom)
               .attr('viewbox', '0 0 100 100')
               .attr('preserveAspectRatio', 'none')
@@ -29,7 +35,7 @@ function barChart(selector, request, title, wid, heig) {
     .attr("y", (margin.top / 2))
     .attr("text-anchor", "middle")
     .style("font-size", "16px")
-    .text(title);
+    .text(config.title);
 
 
   requestData(dataOptions);
@@ -53,20 +59,29 @@ function barChart(selector, request, title, wid, heig) {
     var maxMinute = options.max || 90;
     var limit = options.limit || 'null';
 
-    d3.json('http://localhost:7878/soccer/' + request + '?minuteMin=' + minMinute + '&minuteMax=' + maxMinute + '&limit=' + limit, function(data) {
-      svg.selectAll("g text, g .axis").remove();
+    d3.json('http://localhost:7878/soccer/' + config.request + '?minuteMin=' + minMinute + '&minuteMax=' + maxMinute + '&limit=' + limit, function(data) {
 
-      console.log(request, data);
+      console.log(config.request, data);
       draw(data);
 
       initialized = true;
     });
   };
 
-  function draw(data) {
-    let maxValue = d3.max(data, function(d) { return d.count; });
+  function draw(new_data) {
 
-    x.domain(data.map(function(d) { return d.name; }));
+    // Just redraw if no new data is given
+    if(!new_data) {
+      new_data = data;
+    }
+
+    data = new_data;
+
+    svg.selectAll("g.axis text, g.tick text, g .axis").remove();
+
+    let maxValue = d3.max(new_data, function(d) { return d.count; });
+
+    x.domain(new_data.map(function(d) { return d.name; }));
     if (!initialized) {
       y.domain([maxValue, 0]);
     }
@@ -89,7 +104,7 @@ function barChart(selector, request, title, wid, heig) {
         .attr("text-anchor", "end")
         .text("Count");
 
-    const rect = g.selectAll('.bar').data(data, (d) => d.name);
+    const rect = g.selectAll('.bar').data(new_data, (d) => d.name);
     const rect_enter = rect.enter().append('rect')
       .attr("class", "bar")
       .attr("x", function(d) { return x(d.name); })
@@ -106,25 +121,45 @@ function barChart(selector, request, title, wid, heig) {
       })
       .on("mouseover", function(d) {
         d3.select(this).style("fill", "grey");
+        tooltip.show(d3.event);
       })
       .on("mouseout", function(d) {
         d3.select(this).style("fill", function(d){
           //return colorScale(d.cr);"#FF8A01"
           return "#FF8A01";
         })
+        tooltip.hide();
+      })
+      .on("mousedown", function(d) {
+        if(config.mousedown) {
+          config.mousedown(d);
+        }
       })
       .style("fill", function(d){
           //return colorScale(d.cr);
           return "#FF8A01";
-      });
-      rect_enter.append('title')
-        .text(function(d) { return `${d.name} - ${d.count}`; });
+      })
+
+      rect_enter.append('text')
+        
 
     rect.merge(rect_enter)
       .transition().duration(1000)
         .attr("x", function(d) { return x(d.name); })
         .attr("y", function(d) { return y(d.count); })
-        .attr("height", function(d) { return height - y(d.count); });
+        .attr("height", function(d) { return height - y(d.count); })
+        .style("opacity", (p) => {
+          
+          if(!config.preventHighlighting) {
+            if(window.country) {
+              return window.country == p.countryId ? '' : 0.1;
+            } else if(window.club) {
+              return window.club == p.id ? '' : 0.1;
+            }
+          }
+        })
+
+    rect.merge(rect_enter).select('text').text(function(d) { return `${d.name} - ${d.count}`; })
 
     rect.exit().remove();
   };

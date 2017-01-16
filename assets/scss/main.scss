@@ -35,6 +35,12 @@ h2 {
   }
 }
 
+#goal-bar-chart {
+  rect:hover {
+    cursor: pointer;
+  }
+}
+
 svg {
 
     &.dragging {

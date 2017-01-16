@@ -6,6 +6,10 @@ function scatterPlot(config) {
   const height = 300 - margin.top - margin.bottom;
   const tooltip = d3.tooltip();
 
+  $(document).on('soccer-country-changed soccer-club-changed', function() {
+    update();
+  });
+
   // Creates sources <svg> element
   const svg = d3.select(config.element).append('svg')
               .attr('width', '100%')
@@ -53,6 +57,11 @@ function scatterPlot(config) {
 
   function update(new_data) {
 
+    // Just redraw if no new data is given
+    if(!new_data) {
+      new_data = data;
+    }
+
     // Remove all points and paths from the chart (update on resize)
     svg.selectAll("text.axis").remove();
 
@@ -96,9 +105,14 @@ function scatterPlot(config) {
         tooltip.show(d3.event);
       })
       .on('mouseout', () => {
-        svg.selectAll('circle').style("opacity", "");
+        update();
         tooltip.hide();
-      });
+      })
+      .on('mousedown', (p) => {
+        if(config.mousedown) {
+          config.mousedown(p);
+        }
+      })
 
     rect_enter.append('text');
 
@@ -109,7 +123,14 @@ function scatterPlot(config) {
       .attr('cx', (d, i) => xscale(d.x || 0))
       .attr('cy', (d, i) => yscale(d.y || 0))
       .attr("r", `${radius}px`)
-      .attr("fill", "green");
+      .attr("fill", "green")
+      .style("opacity", (p) => {
+        if(window.country) {
+          return window.country == p.country ? '' : 0.1;
+        } else if(window.club) {
+          return window.club == p.id ? '' : 0.1;
+        }
+      })
 
       points.merge(rect_enter).select('text').text((d) => config.getTemplateString(d));
 
@@ -122,9 +143,9 @@ function scatterPlot(config) {
 
     let url = `http://localhost:7878/${config.api}?minuteMin=${minuteMin}&minuteMax=${minuteMax}`;
 
-    if(window.country) {
-      url += `&country=${window.country}`
-    }
+    //if(window.country) {
+    //  url += `&country=${window.country}`
+    //}
 
     d3.json(url, function(json) {
       data = json;
