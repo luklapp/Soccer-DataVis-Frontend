@@ -119,7 +119,7 @@ function scatterPlot(config) {
     // ENTER + UPDATE
     // both old and new elements
 
-    points.merge(rect_enter).transition()
+    points.merge(rect_enter).transition(1000)
       .attr('cx', (d, i) => xscale(d.x || 0))
       .attr('cy', (d, i) => yscale(d.y || 0))
       .attr("r", `${radius}px`)

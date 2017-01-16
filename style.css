@@ -1,14 +1,32 @@
 body {
   font-family: Helvetica;
   overflow-x: hidden;
+  padding: 0;
+  margin: 0;
+}
+body.show-minute-slider #goals-cards-per-minute {
+  height: 325px;
+}
+body.show-minute-slider #goal-bar-chart, body.show-minute-slider #card-bar-chart {
+  margin-top: 324px;
+}
+
+#toggle-minute-slider {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 2;
 }
 
 #goals-cards-per-minute {
   width: 100%;
   position: fixed;
+  overflow: hidden;
   top: 0;
+  height: 0px;
   background: rgba(200, 200, 200, 0.8);
   border-bottom: 2px solid black;
+  transition: height 1s;
   z-index: 1;
 }
 #goals-cards-per-minute svg {
@@ -30,10 +48,6 @@ h2 {
   font-weight: 400;
 }
 
-#goal-bar-chart, #card-bar-chart {
-  margin-top: 324px;
-}
-
 #goal-club-bar-chart, #card-club-bar-chart {
   border-left: 19px solid white;
   background: white;
@@ -51,6 +65,10 @@ h2 {
 
 #goal-bar-chart rect:hover {
   cursor: pointer;
+}
+
+#goal-bar-chart, #card-bar-chart {
+  transition: margin 1s;
 }
 
 svg.dragging {

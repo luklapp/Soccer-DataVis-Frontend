@@ -7,7 +7,9 @@
     <link href="style.css"  rel="stylesheet">
 </head>
 
-<body>
+<body class="show-minute-slider">
+    <button id="toggle-minute-slider">Toggle Minute-Slider</button>
+
     <div id="goals-cards-per-minute">
       <h2>Total Goals and Cards per Minute</h2>
     </div>
@@ -79,6 +81,10 @@
             window.country = window.country == d.id ? undefined : d.id;
             $(document).trigger('soccer-country-changed');
         }
+
+        $('#toggle-minute-slider').click(function() {
+            $('body').toggleClass('show-minute-slider');
+        });
 
     </script>
 </body>
