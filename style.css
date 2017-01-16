@@ -9,6 +9,7 @@ body {
   top: 0;
   background: rgba(200, 200, 200, 0.8);
   border-bottom: 2px solid black;
+  z-index: 1;
 }
 #goals-cards-per-minute svg {
   margin-top: -40px;
