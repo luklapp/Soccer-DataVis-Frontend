@@ -12,8 +12,6 @@ d3.tooltip = function() {
         $container.toggleClass('hidden', false);
         $container.html(event.target.textContent);
 
-        console.log($container.height());
-        
         $container.css({
             top: event.pageY - $container.outerHeight() - 20,
             left: event.pageX - $container.outerWidth()/2

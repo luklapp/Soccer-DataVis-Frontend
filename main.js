@@ -27,8 +27,6 @@ d3.tooltip = function () {
         $container.toggleClass('hidden', false);
         $container.html(event.target.textContent);
 
-        console.log($container.height());
-
         $container.css({
             top: event.pageY - $container.outerHeight() - 20,
             left: event.pageX - $container.outerWidth() / 2
@@ -268,6 +266,8 @@ function lineChart(elementId) {
   var padding = { top: 0, bottom: 0, left: 50, right: 50 };
   var width = 800 - margin.left - margin.right;
   var height = 300 - margin.top - margin.bottom;
+  var tooltip = d3.tooltip();
+
   // Creates sources <svg> element
   var svg = d3.select(elementId).append('svg').attr('width', '100%') //width+margin.left+margin.right)
   .attr('height', height + margin.top + margin.bottom).attr('viewbox', '0 0 100 100').attr('preserveAspectRatio', 'none').style('padding-left', padding.left).style('padding-right', padding.right);
@@ -397,10 +397,10 @@ function lineChart(elementId) {
     // ENTER
     // new elements
     var rect_enter = rect.enter().append('circle').attr('x', 0);
-    rect_enter.append('title');
+    rect_enter.append('text');
 
     var rect_enter2 = rect2.enter().append('circle').attr('x', 0);
-    rect_enter2.append('title');
+    rect_enter2.append('text');
 
     // ENTER + UPDATE
     // both old and new elements
@@ -413,26 +413,26 @@ function lineChart(elementId) {
       return xscale(d.goal_min);
     }).attr('cy', function (d, i) {
       return yscale(d.count);
-    }).attr("r", "10px").attr("fill", "transparent").on("mouseover", function (d) {
-      d3.select(this).style("fill", "red");
-    }).on("mouseout", function (d) {
-      d3.select(this).style("fill", "transparent");
+    }).attr("r", "10px").attr("fill", "transparent").on('mouseover', function () {
+      tooltip.show(d3.event);
+    }).on('mouseout', function () {
+      tooltip.hide();
     });
 
     rect2.merge(rect_enter2).attr('cx', function (d, i) {
       return xscale(d.card_min);
     }).attr('cy', function (d, i) {
       return yscale(d.count);
-    }).attr("r", "10px").attr("fill", "transparent").on("mouseover", function (d) {
-      d3.select(this).style("fill", "green");
-    }).on("mouseout", function (d) {
-      d3.select(this).style("fill", "transparent");
+    }).attr("r", "10px").attr("fill", "transparent").on('mouseover', function () {
+      tooltip.show(d3.event);
+    }).on('mouseout', function () {
+      tooltip.hide();
     });
 
-    rect.merge(rect_enter).select('title').text(function (d) {
+    rect.merge(rect_enter).select('text').text(function (d) {
       return d.goal_min + '. Minute (' + d.count + ' Tore)';
     });
-    rect2.merge(rect_enter2).select('title').text(function (d) {
+    rect2.merge(rect_enter2).select('text').text(function (d) {
       return d.card_min + '. Minute (' + d.count + ' Karten)';
     });
     // EXIT
@@ -562,8 +562,11 @@ function scatterPlot(config) {
     // ENTER
     // new elements
     var rect_enter = points.enter().append('circle').attr('cx', 0).attr('cy', 0).on('mouseover', function () {
+      svg.selectAll('circle').style("opacity", "0.2");
+      d3.select(this).style("opacity", "1");
       tooltip.show(d3.event);
     }).on('mouseout', function () {
+      svg.selectAll('circle').style("opacity", "");
       tooltip.hide();
     });
 
@@ -590,6 +593,10 @@ function scatterPlot(config) {
   function getData() {
 
     var url = 'http://localhost:7878/' + config.api + '?minuteMin=' + minuteMin + '&minuteMax=' + minuteMax;
+
+    if (window.country) {
+      url += '&country=' + window.country;
+    }
 
     d3.json(url, function (json) {
       data = json;

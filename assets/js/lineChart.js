@@ -4,6 +4,8 @@ function lineChart(elementId) {
   const padding = {top: 0, bottom: 0, left: 50, right: 50};
   const width = 800 - margin.left - margin.right;
   const height = 300 - margin.top - margin.bottom;
+  const tooltip = d3.tooltip();
+
   // Creates sources <svg> element
   const svg = d3.select(elementId).append('svg')
               .attr('width', '100%')//width+margin.left+margin.right)
@@ -157,11 +159,11 @@ d3.selectAll("line.minute-slider").call(d3.drag().on("start", started));
     // new elements
     const rect_enter = rect.enter().append('circle')
       .attr('x', 0)
-    rect_enter.append('title');
+    rect_enter.append('text');
 
     const rect_enter2 = rect2.enter().append('circle')
       .attr('x', 0)
-    rect_enter2.append('title');
+    rect_enter2.append('text');
 
     // ENTER + UPDATE
     // both old and new elements
@@ -183,11 +185,11 @@ d3.selectAll("line.minute-slider").call(d3.drag().on("start", started));
       .attr('cy', (d, i) => yscale(d.count))
       .attr("r", "10px")
       .attr("fill", "transparent")
-      .on("mouseover", function(d) {
-        d3.select(this).style("fill", "red");
+      .on('mouseover', () => {
+        tooltip.show(d3.event);
       })
-      .on("mouseout", function(d) {
-        d3.select(this).style("fill", "transparent");
+      .on('mouseout', () => {
+        tooltip.hide();
       });
 
     rect2.merge(rect_enter2)
@@ -195,15 +197,15 @@ d3.selectAll("line.minute-slider").call(d3.drag().on("start", started));
       .attr('cy', (d, i) => yscale(d.count))
       .attr("r", "10px")
       .attr("fill", "transparent")
-      .on("mouseover", function(d) {
-        d3.select(this).style("fill", "green");
+      .on('mouseover', () => {
+        tooltip.show(d3.event);
       })
-      .on("mouseout", function(d) {
-        d3.select(this).style("fill", "transparent");
+      .on('mouseout', () => {
+        tooltip.hide();
       });
 
-      rect.merge(rect_enter).select('title').text((d) => `${d.goal_min}. Minute (${d.count} Tore)`);
-      rect2.merge(rect_enter2).select('title').text((d) => `${d.card_min}. Minute (${d.count} Karten)`);
+      rect.merge(rect_enter).select('text').text((d) => `${d.goal_min}. Minute (${d.count} Tore)`);
+      rect2.merge(rect_enter2).select('text').text((d) => `${d.card_min}. Minute (${d.count} Karten)`);
       // EXIT
       // elements that aren't associated with data
       rect.exit().remove();

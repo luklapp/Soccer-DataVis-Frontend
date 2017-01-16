@@ -5,7 +5,7 @@ function scatterPlot(config) {
   const width = 800 - margin.left - margin.right;
   const height = 300 - margin.top - margin.bottom;
   const tooltip = d3.tooltip();
-  
+
   // Creates sources <svg> element
   const svg = d3.select(config.element).append('svg')
               .attr('width', '100%')
@@ -81,7 +81,6 @@ function scatterPlot(config) {
         .attr("class", "axis")
         .style("text-anchor", "middle")
         .text("Cards per Match");
-    
 
     const points = g.selectAll('circle').data(new_data, (d) => d.id);
 
@@ -90,10 +89,13 @@ function scatterPlot(config) {
     const rect_enter = points.enter().append('circle')
       .attr('cx', 0)
       .attr('cy', 0)
-      .on('mouseover', () => {
+      .on('mouseover', function() {
+        svg.selectAll('circle').style("opacity", "0.2");
+        d3.select(this).style("opacity", "1");
         tooltip.show(d3.event);
       })
       .on('mouseout', () => {
+        svg.selectAll('circle').style("opacity", "");
         tooltip.hide();
       });
 
@@ -118,6 +120,10 @@ function scatterPlot(config) {
   function getData() {
 
     let url = `http://localhost:7878/${config.api}?minuteMin=${minuteMin}&minuteMax=${minuteMax}`;
+
+    if(window.country) {
+      url += `&country=${window.country}`
+    }
 
     d3.json(url, function(json) {
       data = json;
