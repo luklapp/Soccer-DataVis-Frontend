@@ -65,7 +65,7 @@ In [diesem Video](https://github.com/luklapp/Soccer-DataVis-Frontend/blob/master
 
 ## Insight
 
-Die Daten für die Visualisierungen stellen wir über [eine Api](https://github.com/luklapp/Soccer-DataVis-Frontend) bereit, die wir ebenfalls in Node implementiert haben. Sie greift dazu auf eine Mysql-Datenbank zu und liefert die Daten als JSON zurück.
+Die Daten für die Visualisierungen stellen wir über [eine Api](https://github.com/luklapp/Soccer-DataVis) bereit, die wir ebenfalls in Node implementiert haben. Sie greift dazu auf eine Mysql-Datenbank zu und liefert die Daten als JSON zurück.
 
 Im Frontend haben wir uns für einen Buildprozess mittels Grunt, Babel, Uglify und SCSS entschieden.
 
