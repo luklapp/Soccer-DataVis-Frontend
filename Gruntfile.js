@@ -77,7 +77,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-babel');
 
-  grunt.registerTask('js', ['babel', 'concat']); // TODO: REMOVE TEMP DIR
+  grunt.registerTask('js', ['babel', 'uglify']);
   grunt.registerTask('default', ['sass', 'js', 'watch']);
 
 };
