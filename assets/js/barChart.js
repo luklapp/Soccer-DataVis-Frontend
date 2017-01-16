@@ -1,49 +1,53 @@
 function barChart(config) {
-  let dataOptions = {min: 1, max: 90, limit: 10};
+  
+  // Configuration
   const margin = {top: 40, bottom: 120, left: 50, right: 20};
   const padding = {top: 0, bottom: 0, left: -120, right: 0};
   const width = config.wid - margin.left - margin.right;
   const height = config.heig - margin.top - margin.bottom;
   const tooltip = d3.tooltip();
 
+  // Creates sources <svg> element
+  const svg = d3.select(config.selector).append('svg')
+        .attr('width', config.wid)
+        .attr('height', height+margin.top+margin.bottom)
+        .attr('viewbox', '0 0 100 100')
+        .attr('preserveAspectRatio', 'none')
+        .style('padding-left', padding.left)
+        .style('padding-right', padding.right);
+
+  let dataOptions = {min: 1, max: 90, limit: 10};
+
+  // Event listeners
   $(document).on('soccer-country-changed soccer-club-changed', function() {
     draw();
   });
 
   let initialized = false;
-  // Creates sources <svg> element
-  const svg = d3.select(config.selector).append('svg')
-              .attr('width', config.wid)
-              .attr('height', height+margin.top+margin.bottom)
-              .attr('viewbox', '0 0 100 100')
-              .attr('preserveAspectRatio', 'none')
-              .style('padding-left', padding.left)
-              .style('padding-right', padding.right);
+  
   // Group used to enforce margin
   var x = d3.scaleBand().rangeRound([0, width]).padding(0.5),
-    y = d3.scaleLinear().rangeRound([0, height]);
-
-  var max=20, data = [];
-  var colorScale = d3.scaleLinear().domain([0,max]).range(["#FF8A01", "#019DE2"]);
-
-  var g = svg.append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      y = d3.scaleLinear().rangeRound([0, height]),
+      max=20, 
+      data = [],
+      colorScale = d3.scaleLinear().domain([0,max]).range(["#FF8A01", "#019DE2"]),
+      g = svg.append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   //Title
   svg.append("text")
-    .attr("x", (width / 2))
-    .attr("y", (margin.top / 2))
-    .attr("text-anchor", "middle")
-    .style("font-size", "16px")
-    .text(config.title);
-
+     .attr("x", (width / 2))
+     .attr("y", (margin.top / 2))
+     .attr("text-anchor", "middle")
+     .style("font-size", "16px")
+     .text(config.title);
 
   requestData(dataOptions);
 
+  // Register in ObserverManager
   ObserverManager.register(function(ev, obj) {
       if (ev === 'minuteChanged') {
         for (let o in dataOptions) {
-          console.log(o);
           if(obj[o]) {
             if(dataOptions[o] !== obj[o]) {
               dataOptions[o] = obj[o];
@@ -54,20 +58,19 @@ function barChart(config) {
       }
   });
 
+  // Get data from API
   function requestData(options) {
     var minMinute = options.min || 1;
     var maxMinute = options.max || 90;
     var limit = options.limit || 'null';
 
     d3.json('http://localhost:7878/soccer/' + config.request + '?minuteMin=' + minMinute + '&minuteMax=' + maxMinute + '&limit=' + limit, function(data) {
-
-      console.log(config.request, data);
       draw(data);
-
       initialized = true;
     });
   };
 
+  // Draw visualisation
   function draw(new_data) {
 
     // Just redraw if no new data is given
@@ -77,10 +80,12 @@ function barChart(config) {
 
     data = new_data;
 
-    svg.selectAll("g.axis text, g.tick text, g .axis").remove();
-
     let maxValue = d3.max(new_data, function(d) { return d.count; });
 
+    // Remove texts to prevent duplicates
+    svg.selectAll("g.axis text, g.tick text, g .axis").remove();
+
+    // Setup axes
     x.domain(new_data.map(function(d) { return d.name; }));
     if (!initialized) {
       y.domain([maxValue, 0]);
@@ -104,6 +109,7 @@ function barChart(config) {
         .attr("text-anchor", "end")
         .text("Count");
 
+    // Draw bars
     const rect = g.selectAll('.bar').data(new_data, (d) => d.name);
     const rect_enter = rect.enter().append('rect')
       .attr("class", "bar")
@@ -119,13 +125,13 @@ function barChart(config) {
             return 0;
           return height - y(d.count);
       })
+      // Mouse events
       .on("mouseover", function(d) {
         d3.select(this).style("fill", "grey");
         tooltip.show(d3.event);
       })
       .on("mouseout", function(d) {
         d3.select(this).style("fill", function(d){
-          //return colorScale(d.cr);"#FF8A01"
           return "#FF8A01";
         })
         tooltip.hide();
@@ -136,13 +142,12 @@ function barChart(config) {
         }
       })
       .style("fill", function(d){
-          //return colorScale(d.cr);
           return "#FF8A01";
       })
 
-      rect_enter.append('text')
-        
+    rect_enter.append('text')    
 
+    // Merge bars
     rect.merge(rect_enter)
       .transition().duration(1000)
         .attr("x", function(d) { return x(d.name); })
@@ -150,6 +155,7 @@ function barChart(config) {
         .attr("height", function(d) { return height - y(d.count); })
         .style("opacity", (p) => {
           
+          // Highlighting of countries and events
           if(!config.preventHighlighting) {
             if(window.country) {
               return window.country == p.countryId ? '' : 0.1;
@@ -159,9 +165,9 @@ function barChart(config) {
           }
         })
 
+    // Add text element for tooltip
     rect.merge(rect_enter).select('text').text(function(d) { return `${d.name} - ${d.count}`; })
 
     rect.exit().remove();
   };
 };
-
