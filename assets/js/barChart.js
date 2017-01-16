@@ -1,13 +1,18 @@
 function barChart(selector, request) {
   let dataOptions = {min: 1, max: 90, limit: 10};
-  const margin = {top: 40, bottom: 120, left: 30, right: 20};
-  const width = 950 - margin.left - margin.right;
+  const margin = {top: 40, bottom: 120, left: 50, right: 20};
+  const padding = {top: 0, bottom: 0, left: 0, right: 0};
+  const width = 800 - margin.left - margin.right;
   const height = 400 - margin.top - margin.bottom;
   let initialized = false;
   // Creates sources <svg> element
   const svg = d3.select(selector).append('svg')
-              .attr('width', width+margin.left+margin.right)
-              .attr('height', height+margin.top+margin.bottom);
+              .attr('width', '100%')
+              .attr('height', height+margin.top+margin.bottom)
+              .attr('viewbox', '0 0 100 100')
+              .attr('preserveAspectRatio', 'none')
+              .style('padding-left', padding.left)
+              .style('padding-right', padding.right);
   // Group used to enforce margin
   var x = d3.scaleBand().rangeRound([0, width]).padding(0.5),
     y = d3.scaleLinear().rangeRound([0, height]);
@@ -100,7 +105,7 @@ function barChart(selector, request) {
           return height - y(d.count);
       })
       .on("mouseover", function(d) {
-        d3.select(this).style("fill", "green");
+        d3.select(this).style("fill", "grey");
       })
       .on("mouseout", function(d) {
         d3.select(this).style("fill", function(d){
